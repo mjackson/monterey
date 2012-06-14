@@ -229,6 +229,16 @@ ES5, specifically the "static" methods of `Object` including `Object.create`
 and `Object.defineProperty`. Please see kangax's excellent [ECMAScript 5 compatibility table](http://kangax.github.com/es5-compat-table/)
 for information on which browsers support ES5.
 
+## Installation
+
+Using [npm](http://npmjs.org):
+
+    $ npm install monterey
+
+Otherwise, [download](https://github.com/mjijackson/monterey.js/downloads) the
+package from GitHub and include monterey.js as you would any other JavaScript
+file.
+
 ## Testing
 
 Monterey includes a test suite that runs on [node](http://nodejs.org) using the
