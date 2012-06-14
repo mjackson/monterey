@@ -1,3 +1,8 @@
+/*!
+ * monterey.js - A minimal OO & functional toolkit for ES5 JavaScript
+ * Copyright 2012 Michael Jackson
+ */
+
 (function () {
 
   var _guid = 1;
