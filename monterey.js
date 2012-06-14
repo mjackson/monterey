@@ -14,13 +14,19 @@
   Object.defineProperty(Object.prototype, "guid", {
     get: function () {
       if (!this.hasOwnProperty("_guid")) {
-        Object.defineProperty(this, "_guid", {
-          value: _guid++,
-          writable: true
-        });
+        Object.defineProperty(this, "_guid", { value: _guid++, writable: true });
       }
 
       return this._guid;
+    },
+    set: function (value) {
+      if (!this.hasOwnProperty("_guid")) {
+        Object.defineProperty(this, "_guid", { value: value, writable: true });
+      } else {
+        this._guid = value;
+      }
+
+      return value;
     }
   });
 
