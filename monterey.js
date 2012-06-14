@@ -1,18 +1,21 @@
 (function () {
 
-  var _objectId = 1;
+  var _guid = 1;
   var _slice = Array.prototype.slice;
 
   /**
    * Returns a unique identifier for this object, generated on-demand.
    */
-  Object.defineProperty(Object.prototype, "objectId", {
+  Object.defineProperty(Object.prototype, "guid", {
     get: function () {
-      if (!this.hasOwnProperty("_objectId")) {
-        Object.defineProperty(this, "_objectId", { value: _objectId++ });
+      if (!this.hasOwnProperty("_guid")) {
+        Object.defineProperty(this, "_guid", {
+          value: _guid++,
+          writable: true
+        });
       }
 
-      return this._objectId;
+      return this._guid;
     }
   });
 
@@ -156,10 +159,10 @@
       }
 
       if (handler) {
-        var id = handler.objectId;
+        var id = handler.guid;
 
         for (var i = 0; i < events.length; ++i) {
-          if (events[i].handler.objectId === id) {
+          if (events[i].handler.guid === id) {
             events.splice(i--, 1); // A bit dangerous.
           }
         }

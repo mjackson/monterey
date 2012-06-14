@@ -223,9 +223,9 @@ section above).
 To use it, simply call `extend` on any object and pass it another object to copy
 properties from.
 
-### Object#objectId
+### Object#guid
 
-In Monterey, every object has an `objectId` property that is globally unique to
+In Monterey, every object has an `guid` property that is globally unique to
 that object. This can be useful in many different situations. For example,
 [jQuery](http://jquery.com)'s event subsystem assigns a globally unique id to
 event handlers so that it can correctly identify a function later when removing
@@ -239,7 +239,7 @@ instantiation. Use it on any object.
 var a = {};
 var b = {};
 
-assert(a.objectId !== b.objectId);
+assert(a.guid !== b.guid);
 ```
 
 ## Compatibility

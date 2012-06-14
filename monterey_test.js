@@ -4,14 +4,14 @@ var assert = require("assert"),
 require("./monterey");
 
 vows.describe("monterey").addBatch({
-  "Object#objectId": {
-    "generates a unique id for a new object": function () {
+  "Object#guid": {
+    "generates a globally unique id for a new object": function () {
       var a = {};
       var b = {};
 
-      assert(a.objectId);
-      assert(b.objectId);
-      assert(a.objectId !== b.objectId);
+      assert(a.guid);
+      assert(b.guid);
+      assert(a.guid !== b.guid);
     }
   },
   "Object#extend": {
