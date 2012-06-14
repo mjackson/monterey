@@ -105,6 +105,8 @@ when another function inherits from them (see the Inheritance section above).
       this.name = name;
     }
 
+    // Use this array to keep track of subclasses when Person
+    // is inherited.
     Person.subclasses = [];
 
     Person.on("inherited", function (e, subclass) {
@@ -122,6 +124,12 @@ when another function inherits from them (see the Inheritance section above).
     Employee.inherit(Person);
 
     Person.subclasses; // [Employee]
+
+By default events have `type`, `time`, and `source` properties as in the
+example above.
+
+Note: If an event handler returns `false` all remaining handlers for that event
+are not called.
 
 ### Mixins
 
