@@ -1,4 +1,4 @@
-= Welcome to Monterey!
+# Welcome to Monterey!
 
 Monterey is a tiny JavaScript library that neatly encapsulates some of my
 favorite usage patterns and makes them a core part of the language. Some of
@@ -14,9 +14,9 @@ you'll still probably enjoy reading the source to see how some of the new
 features in ES5 are used to expose JavaScript's powerful object model and
 meta-programming interface.
 
-== Features
+## Features
 
-=== Inheritance
+### Inheritance
 
 Although it may be used in a mostly-functional style, JavaScript has a simple
 and powerful object model at its heart built around prototypal inheritance. What
@@ -74,7 +74,7 @@ Note: It is important to remember to call the parent function inside the child
 constructor, otherwise you'll probably be missing some important initialization
 logic the parent class provides.
 
-=== Events
+### Events
 
 Most JavaScript programs rely heavily on an event-driven architecture to know
 when to do things. For example, in a web browser event handlers are used to run
@@ -123,7 +123,7 @@ when another function inherits from them (see the Inheritance section above).
 
     Person.subclasses; // [Employee]
 
-=== Mixins
+### Mixins
 
 Classical inheritance is the right solution for situations where the problem
 domain can be neatly broken up into a single-inheritance hierarchy. However,
@@ -182,7 +182,7 @@ the prototype object. Also, `instanceof` doesn't work with mixins as it does
 with normal inheritance. However, with carefully constructed code this pattern
 can be very useful.
 
-=== Object#is
+### Object#is
 
 The `instanceof` operator can be used to check if an object inherits from a
 function (i.e. if that function's prototype appears in the object's prototype
@@ -195,7 +195,7 @@ Continuing from the example above:
     view.is(Scrollable); // true
     view.is(Draggable); // true
 
-=== Object#extend
+### Object#extend
 
 It's extremely common to need to copy the own properties of one object to
 another efficiently. This can be useful when cloning objects, for example, or
@@ -205,7 +205,7 @@ section above).
 To use it, simply call `extend` on any object and pass it another object to copy
 properties from.
 
-=== Object#objectId
+### Object#objectId
 
 In Monterey, every object has an `objectId` property that is globally unique to
 that object. This can be useful in many different situations. For example,
@@ -222,14 +222,14 @@ instantiation. Use it on any object.
 
     assert(a.objectId !== b.objectId);
 
-== Compatibility
+## Compatibility
 
 Monterey should work perfectly in any JavaScript environment that supports
 ES5, specifically the "static" methods of `Object` including `Object.create`
 and `Object.defineProperty`. Please see kangax's excellent [ECMAScript 5 compatibility table](http://kangax.github.com/es5-compat-table/)
 for information on which browsers support ES5.
 
-== Testing
+## Testing
 
 Monterey includes a test suite that runs on [node](http://nodejs.org) using the
 [vows](http://vowsjs.org) testing framework. To run the tests, first install
