@@ -44,31 +44,35 @@ use this pattern of inheritance in JavaScript:
 that it's shorter to type and complements the "class"-style naming convention
 better.
 
-    function Person(name) {
-      this.name = name;
-    }
+```javascript
+function Person(name) {
+  this.name = name;
+}
 
-    var michael = new Person("Michael");
+var michael = new Person("Michael");
 
-    assert(Person.class === Function);
-    assert(michael.class === Person);
-    assert(michael.class.name === "Person");
+assert(Person.class === Function);
+assert(michael.class === Person);
+assert(michael.class.name === "Person");
+```
 
 `Function#inherit` is used to set up the prototype chain from one function to
 another. In the following contrived example we have an `Employee` class inherit
 from the `Person` class defined above.
 
-    function Employee(name, title) {
-      Person.call(this, name);
-      this.title = title;
-    }
+```javascript
+function Employee(name, title) {
+  Person.call(this, name);
+  this.title = title;
+}
 
-    Employee.inherit(Person);
+Employee.inherit(Person);
 
-    Employee.superclass; // Person
-    Employee.isSubclassOf(Person); // true
-    Person.isSuperclassOf(Employee); // true
-    Employee.ancestors; // [Person, Object]
+Employee.superclass; // Person
+Employee.isSubclassOf(Person); // true
+Person.isSuperclassOf(Employee); // true
+Employee.ancestors; // [Person, Object]
+```
 
 Note: It is important to remember to call the parent function inside the child
 constructor, otherwise you'll probably be missing some important initialization
@@ -101,29 +105,31 @@ given, or all event handlers for the given type if no handler is given.
 Functions in Monterey make use of this feature to trigger "inherited" events
 when another function inherits from them (see the Inheritance section above).
 
-    function Person(name) {
-      this.name = name;
-    }
+```javascript
+function Person(name) {
+  this.name = name;
+}
 
-    // Use this array to keep track of subclasses when Person
-    // is inherited.
-    Person.subclasses = [];
+// Use this array to keep track of subclasses when Person
+// is inherited.
+Person.subclasses = [];
 
-    Person.on("inherited", function (e, subclass) {
-      e.type; // "inherited"
-      e.time; // Date
-      e.source; // Person
-      this.subclasses.push(subclass);
-    });
+Person.on("inherited", function (e, subclass) {
+  e.type; // "inherited"
+  e.time; // Date
+  e.source; // Person
+  this.subclasses.push(subclass);
+});
 
-    function Employee(name, title) {
-      Person.call(this, name);
-      this.title = title;
-    }
+function Employee(name, title) {
+  Person.call(this, name);
+  this.title = title;
+}
 
-    Employee.inherit(Person);
+Employee.inherit(Person);
 
-    Person.subclasses; // [Employee]
+Person.subclasses; // [Employee]
+```
 
 By default events have `type`, `time`, and `source` properties as in the
 example above.
@@ -153,36 +159,38 @@ The following methods make this possible:
 These allow you to mimic multiple inheritance in JavaScript to some extent.
 Consider the following:
 
-    function View() {}
+```javascript
+function View() {}
 
-    var view = new View;
+var view = new View;
 
-    // A mixin for views we want to be "scrollable".
-    function Scrollable() {
-      this.isScrollable = true;
-    }
+// A mixin for views we want to be "scrollable".
+function Scrollable() {
+  this.isScrollable = true;
+}
 
-    Scrollable.prototype.scroll = function () {
-      // ...
-    };
+Scrollable.prototype.scroll = function () {
+  // ...
+};
 
-    // A mixin for views we want to be "scrollable".
-    function Draggable() {
-      this.isDraggable = true;
-    }
+// A mixin for views we want to be "scrollable".
+function Draggable() {
+  this.isDraggable = true;
+}
 
-    Draggable.prototype.drag = function () {
-      // ...
-    };
+Draggable.prototype.drag = function () {
+  // ...
+};
 
-    view.mixin(Scrollable);
-    view.mixin(Draggable);
+view.mixin(Scrollable);
+view.mixin(Draggable);
 
-    view.isScrollable; // true
-    view.isDraggable; // true
-    view.mixins; // [Scrollable, Draggable]
-    view.mixesIn(Scrollable); // true
-    view.mixesIn(Array); // false
+view.isScrollable; // true
+view.isDraggable; // true
+view.mixins; // [Scrollable, Draggable]
+view.mixesIn(Scrollable); // true
+view.mixesIn(Array); // false
+```
 
 The caveat is that since the prototype of a mixin is not inserted into the
 object's prototype chain that object does not automatically get any updates to
@@ -199,9 +207,11 @@ this problem for us.
 
 Continuing from the example above:
 
-    view.is(View); // true
-    view.is(Scrollable); // true
-    view.is(Draggable); // true
+```javascript
+view.is(View); // true
+view.is(Scrollable); // true
+view.is(Draggable); // true
+```
 
 ### Object#extend
 
@@ -225,10 +235,12 @@ includes an `object_id` method that does the same thing.
 This id is not generated until you need it so it doesn't slow down normal object
 instantiation. Use it on any object.
 
-    var a = {};
-    var b = {};
+```javascript
+var a = {};
+var b = {};
 
-    assert(a.objectId !== b.objectId);
+assert(a.objectId !== b.objectId);
+```
 
 ## Compatibility
 
