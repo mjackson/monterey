@@ -1,8 +1,8 @@
 {
   "author": "Michael Jackson <mjijackson@gmail.com>",
   "name": "monterey",
-  "description": "Simple OO and functional patterns for ES5 JavaScript",
-  "version": "0.1.0",
+  "description": "Minimal OO and functional toolkit for ES5 JavaScript",
+  "version": "0.2.0",
   "repository": {
     "url": "http://github.com/mjijackson/monterey.js.git"
   },
