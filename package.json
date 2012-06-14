@@ -1,0 +1,19 @@
+{
+  "author": "Michael Jackson <mjijackson@gmail.com>",
+  "name": "monterey",
+  "description": "OO and functional helpers for ES5 JavaScript",
+  "version": "0.1.0",
+  "repository": {
+    "url": "http://github.com/mjijackson/monterey.js.git"
+  },
+  "main": "./monterey",
+  "scripts": {
+    "test": "vows --spec monterey_test.js"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
