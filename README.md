@@ -242,6 +242,23 @@ var b = {};
 assert(a.guid !== b.guid);
 ```
 
+### Object#toString
+
+By default JavaScript's built-in `Object#toString` is not very useful for
+classes that you define yourself. Monterey fixes this by overriding the default
+behavior to always include the name of an object's constructor, even for
+user-defined classes.
+
+```javascript
+function Person(name) {
+  this.name = name;
+}
+
+var michael = new Person("Michael");
+
+michael.toString(); // "[object Person]"
+```
+
 ## Compatibility
 
 Monterey should work perfectly in any JavaScript environment that supports
