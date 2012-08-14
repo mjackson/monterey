@@ -61,13 +61,7 @@
    */
   Object.defineProperty(Object.prototype, "is", {
     value: function (fn) {
-      // Check prototype chain.
-      if (this instanceof fn) {
-        return true;
-      }
-
-      // Check mixins.
-      return this.mixesIn(fn);
+      return (this instanceof fn) || this.mixesIn(fn);
     }
   });
 
@@ -305,4 +299,4 @@
     }
   });
 
-})();
+}());
