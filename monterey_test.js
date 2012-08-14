@@ -1,5 +1,5 @@
-var assert = require("assert"),
-    vows = require("vows");
+var assert = require("assert");
+var vows = require("vows");
 
 require("./monterey");
 
@@ -71,6 +71,14 @@ vows.describe("monterey").addBatch({
       c.mixin(a);
       assert(c.is(b));
       assert(c.is(a));
+    }
+  },
+  "Object#toString": {
+    "generates a string with the name of an object's constructor": function () {
+      function A() {}
+      var a = new A();
+
+      assert.equal(a.toString(), "[object A]");
     }
   },
   "Object#mixins": {

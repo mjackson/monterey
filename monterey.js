@@ -72,6 +72,16 @@
   });
 
   /**
+   * Returns a string representation of an object that includes the name of
+   * its constructor.
+   */
+  Object.defineProperty(Object.prototype, "toString", {
+    value: function () {
+      return "[object " + this.constructor.name + "]";
+    }
+  });
+
+  /**
    * Returns an array of functions that have been "mixed in" to this object.
    * See Object#mixin.
    */
