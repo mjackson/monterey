@@ -7,7 +7,6 @@
 
   var _guid = 1;
   var slice = Array.prototype.slice;
-  var defineProperty = Object.defineProperty;
   var defineProperties = Object.defineProperties;
 
   defineProperties(Object.prototype, {
@@ -228,10 +227,14 @@
   /**
    * Returns true if the given object is a function.
    */
-  defineProperty(Function, "isFunction", {
-    value: function (object) {
-      return typeof object === "function";
+  defineProperties(Function, {
+
+    isFunction: {
+      value: function (object) {
+        return typeof object === "function";
+      }
     }
+
   });
 
   defineProperties(Function.prototype, {
