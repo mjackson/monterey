@@ -5,6 +5,9 @@ require("./monterey");
 
 vows.describe("monterey").addBatch({
   "Object#guid": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("guid"));
+    },
     "generates a globally unique id for a new object": function () {
       var a = {};
       var b = {};
@@ -15,6 +18,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Object#extend": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("extend"));
+    },
     "copies all enumerable own properties to the receiver": function () {
       var a = {};
       var b = {};
@@ -31,6 +37,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Object#class": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("class"));
+    },
     "returns the constructor function for an object": function () {
       assert.equal(Object, {}.class);
       assert.equal(Array, [].class);
@@ -44,6 +53,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Object#is": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("is"));
+    },
     "returns true for direct instances of a function": function () {
       var a = function () {};
       var b = new a;
@@ -74,6 +86,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Object#toString": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("toString"));
+    },
     "generates a string with the name of an object's constructor": function () {
       function A() {}
       var a = new A();
@@ -82,6 +97,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Object#mixins": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("mixins"));
+    },
     "returns an new empty array for a new object": function () {
       var a = {};
       assert.deepEqual([], a.mixins);
@@ -101,6 +119,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Object#mixin": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("mixin"));
+    },
     "calls the given function with any additional arguments": function () {
       var args;
       var a = {};
@@ -158,6 +179,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Object#mixesIn": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("mixesIn"));
+    },
     "returns true for an object that mixes in a given function": function () {
       var a = function () {};
       var b = {};
@@ -170,6 +194,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Object#events": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("events"));
+    },
     "returns an new empty array for a new object": function () {
       var a = {};
       assert.deepEqual([], a.events);
@@ -189,6 +216,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Object#on": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("on"));
+    },
     "throws an error when an invalid event handler is given": function () {
       var a = {};
 
@@ -207,6 +237,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Object#off": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("off"));
+    },
     "removes a single handler when one is given": function () {
       var a = {};
 
@@ -248,6 +281,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Object#trigger": {
+    "is not enumerable": function () {
+      assert(!(new Object).propertyIsEnumerable("trigger"));
+    },
     "calls all handlers for a given event type": function () {
       var a = {};
       var bCalled = false;
@@ -334,6 +370,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Function.isFunction": {
+    "is not enumerable": function () {
+      assert(!Function.propertyIsEnumerable("isFunction"));
+    },
     "returns true for a function literal": function () {
       assert(Function.isFunction(Object));
     },
@@ -349,6 +388,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Function#inherit": {
+    "is not enumerable": function () {
+      assert(!(new Function).propertyIsEnumerable("inherit"));
+    },
     "extends the receiver with all enumerable own properties of the given function": function () {
       var a = function () {};
       a.staticProp = "a";
@@ -389,6 +431,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Function#isSubclassOf": {
+    "is not enumerable": function () {
+      assert(!(new Function).propertyIsEnumerable("isSubclassOf"));
+    },
     "returns true for a function that directly inherits from another": function () {
       var a = function () {};
       var b = function () {};
@@ -407,6 +452,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Function#isSuperclassOf": {
+    "is not enumerable": function () {
+      assert(!(new Function).propertyIsEnumerable("isSuperclassOf"));
+    },
     "returns true for a function that is directly inherited by another": function () {
       var a = function () {};
       var b = function () {};
@@ -425,6 +473,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Function#superclass": {
+    "is not enumerable": function () {
+      assert(!(new Function).propertyIsEnumerable("superclass"));
+    },
     "returns the function from which a function inherits": function () {
       var a = function () {};
       var b = function () {};
@@ -441,6 +492,9 @@ vows.describe("monterey").addBatch({
     }
   },
   "Function#ancestors": {
+    "is not enumerable": function () {
+      assert(!(new Function).propertyIsEnumerable("ancestors"));
+    },
     "returns an array of functions a function inherits from in hierarchical order": function () {
       var a = function () {};
       var b = function () {};
