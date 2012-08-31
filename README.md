@@ -195,7 +195,7 @@ michael.toString(); // "[object Person]"
 
 ## Compatibility
 
-Monterey should work perfectly in any JavaScript environment that supports ES5, specifically the "static" methods of `Object` including `Object.create` and `Object.defineProperties`. Please see kangax's excellent [ECMAScript 5 compatibility table](http://kangax.github.com/es5-compat-table/) for information on which browsers support ES5.
+Monterey should work perfectly in any JavaScript environment that supports ES5, specifically the "static" methods of `Object` including `Object.create`, `Object.defineProperty`, and `Object.defineProperties`. Please see kangax's excellent [ECMAScript 5 compatibility table](http://kangax.github.com/es5-compat-table/) for information on which browsers support ES5.
 
 ## Installation
 

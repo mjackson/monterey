@@ -7,6 +7,7 @@
 
   var _guid = 1;
   var slice = Array.prototype.slice;
+  var defineProperty = Object.defineProperty;
   var defineProperties = Object.defineProperties;
 
   defineProperties(Object.prototype, {
@@ -17,14 +18,14 @@
     guid: {
       get: function () {
         if (!this.hasOwnProperty("_guid")) {
-          Object.defineProperty(this, "_guid", { value: _guid++, writable: true });
+          defineProperty(this, "_guid", { value: _guid++, writable: true });
         }
 
         return this._guid;
       },
       set: function (value) {
         if (!this.hasOwnProperty("_guid")) {
-          Object.defineProperty(this, "_guid", { value: value, writable: true });
+          defineProperty(this, "_guid", { value: value, writable: true });
         } else {
           this._guid = value;
         }
@@ -85,7 +86,7 @@
     mixins: {
       get: function () {
         if (!this.hasOwnProperty("_mixins")) {
-          Object.defineProperty(this, "_mixins", { value: [] });
+          defineProperty(this, "_mixins", { value: [] });
         }
 
         return this._mixins;
@@ -135,7 +136,7 @@
     events: {
       get: function () {
         if (!this.hasOwnProperty("_events")) {
-          Object.defineProperty(this, "_events", { value: [] });
+          defineProperty(this, "_events", { value: [] });
         }
 
         return this._events;
@@ -259,7 +260,7 @@
         this.prototype = Object.create(fn.prototype);
 
         // Preserve the constructor reference!
-        Object.defineProperty(this.prototype, "constructor", { value: this });
+        defineProperty(this.prototype, "constructor", { value: this });
 
         fn.trigger("inherited", this);
       }
