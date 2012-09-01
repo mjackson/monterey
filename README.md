@@ -1,8 +1,8 @@
 # Welcome to Monterey!
 
-Monterey is a tiny JavaScript library that neatly encapsulates some of my favorite usage patterns and makes them a core part of the language. Some of these features have to do with object-oriented programming, reflection, and inheritance, while others are geared towards enabling a more fluent event-driven interface.
+Monterey is a tiny JavaScript library that neatly encapsulates several very common usage patterns and makes them a core part of the language. Some of these features have to do with object-oriented programming, reflection, and inheritance, while others are geared towards enabling a more fluent event-driven interface.
 
-This document explains each feature and gives some guidance as to why I've included it and how to use it. If you're a newcomer to JavaScript from another object-oriented language like Java, Python, or Ruby, you'll probably find most of these additions quite welcome. If you're an experienced JavaScript programmer you'll still probably enjoy reading the source to see how some of the new features in ES5 are used to expose JavaScript's powerful object model and meta-programming interface.
+This document explains each feature and gives some guidance as to how to use it. If you're a newcomer to JavaScript from another object-oriented language like Java, Python, or Ruby, you'll probably find most of these additions quite welcome. If you're an experienced JavaScript programmer you'll still probably enjoy reading the source to see how some of the new features in ES5 are used to expose JavaScript's powerful object model and meta-programming interface.
 
 ## Features
 
@@ -14,30 +14,19 @@ Even though a function automatically comes with a prototype, a function may actu
 
 Monterey provides the following properties and methods that make it easier to use this pattern of inheritance in JavaScript:
 
-  - `Object#class`
   - `Function#inherit(fn)`
-  - `Function#isSuperclassOf(fn)`
-  - `Function#isSubclassOf(fn)`
-  - `Function#superclass`
+  - `Function#isAncestorOf(fn)`
+  - `Function#inherits(fn)`
+  - `Function#parent`
   - `Function#ancestors`
 
-`Object#class` is a simple getter alias for an object's `constructor`, except that it's shorter to type and complements the "class"-style naming convention better.
+`Function#inherit` is used to set up the prototype chain from one constructor function to another.
 
 ```javascript
 function Person(name) {
   this.name = name;
 }
 
-var michael = new Person("Michael");
-
-assert(Person.class === Function);
-assert(michael.class === Person);
-assert(michael.class.name === "Person");
-```
-
-`Function#inherit` is used to set up the prototype chain from one function to another. In the following contrived example we have an `Employee` class inherit from the `Person` class defined above.
-
-```javascript
 function Employee(name, title) {
   Person.call(this, name);
   this.title = title;
@@ -45,13 +34,13 @@ function Employee(name, title) {
 
 Employee.inherit(Person);
 
-Employee.superclass; // Person
-Employee.isSubclassOf(Person); // true
-Person.isSuperclassOf(Employee); // true
+Employee.parent; // Person
+Employee.inherits(Person); // true
+Person.isAncestorOf(Employee); // true
 Employee.ancestors; // [Person, Object]
 ```
 
-Note: It is important to remember to call the parent function inside the child constructor, otherwise you'll probably be missing some important initialization logic the parent class provides.
+Note: It is important to remember to call the parent function inside the child constructor, otherwise you'll probably be missing some important initialization logic the parent provides.
 
 ### Events
 
@@ -61,11 +50,11 @@ Libraries like [jQuery](http://jquery.com) can be very useful for setting up eve
 
 In Monterey, any JavaScript object is able to register event handlers and notify listeners when events happen. The following methods make this possible:
 
-  - `Object#on(type, handler)`
-  - `Object#off(type, [ handler ])`
-  - `Object#trigger(type, args...)`
+  - `Object.on(object, type, handler)`
+  - `Object.off(object, type, [ handler ])`
+  - `Object.trigger(object, type, args...)`
 
-`Object#on` is used to register a handler function for a given type of event. `Object#trigger` triggers an event of a given type and calls all handlers for events of that type with an event object and any additional arguments given in the scope of the receiver. `Object#off` un-registers a specific event handler if given, or all event handlers for the given type if no handler is given.
+`Object.on` is used to register a handler function for a given type of event on any object. `Object#trigger` triggers an event of a given type and calls all handlers for events of that type with an event object and any additional arguments given in the scope of the receiver. `Object#off` un-registers a specific event handler if given, or all event handlers for the given type if no handler is given.
 
 Functions in Monterey make use of this feature to trigger "inherited" events when another function inherits from them (see the Inheritance section above).
 
@@ -74,15 +63,15 @@ function Person(name) {
   this.name = name;
 }
 
-// Use this array to keep track of subclasses when Person
+// Use this array to keep track of child constructors when Person
 // is inherited.
-Person.subclasses = [];
+Person.children = [];
 
 Person.on("inherited", function (e, subclass) {
   e.type; // "inherited"
   e.time; // Date
   e.source; // Person
-  this.subclasses.push(subclass);
+  this.children.push(subclass);
 });
 
 function Employee(name, title) {
@@ -92,7 +81,7 @@ function Employee(name, title) {
 
 Employee.inherit(Person);
 
-Person.subclasses; // [Employee]
+Person.children; // [Employee]
 ```
 
 By default events have `type`, `time`, and `source` properties as in the example above.
@@ -103,13 +92,13 @@ Note: If an event handler returns `false` all remaining handlers for that event 
 
 Classical inheritance is the right solution for situations where the problem domain can be neatly broken up into a single-inheritance hierarchy. However, many real world scenarios do not fit this model well. Monterey attempts to address this issue with "mixins".
 
-A mixin is simply a function that is applied to some other object without being inserted into that object's prototype chain. To achieve this the receiver is first extended with all properties of the function prototype, and then the function is called with the receiver as its `this` so that the object may be initialized as any other object that uses that constructor function would be.
+A mixin is simply a function that is applied to some other object without being inserted into that object's prototype chain. To achieve this the receiver is first extended with all properties of the function prototype, and then the function is called with the receiver as its `this` so that the object may be initialized as any other object that uses that constructor would be.
 
 The following methods make this possible:
 
-  - `Object#mixin(fn)`
-  - `Object#mixins`
-  - `Object#mixesIn(fn)`
+  - `Object.mixin(object, fn)`
+  - `Object.mixins(object)`
+  - `Object.mixesIn(object, fn)`
 
 These allow you to mimic multiple inheritance in JavaScript to some extent. Consider the following:
 
@@ -127,7 +116,7 @@ Scrollable.prototype.scroll = function () {
   // ...
 };
 
-// A mixin for views we want to be "scrollable".
+// A mixin for views we want to be "draggable".
 function Draggable() {
   this.isDraggable = true;
 }
@@ -136,47 +125,44 @@ Draggable.prototype.drag = function () {
   // ...
 };
 
-view.mixin(Scrollable);
-view.mixin(Draggable);
+Object.mixin(view, Scrollable);
+Object.mixin(view, Draggable);
 
 view.isScrollable; // true
 view.isDraggable; // true
-view.mixins; // [Scrollable, Draggable]
-view.mixesIn(Scrollable); // true
-view.mixesIn(Array); // false
+Object.mixins(view); // [Scrollable, Draggable]
+Object.mixesIn(view, Scrollable); // true
+Object.mixesIn(view, Array); // false
 ```
 
 The caveat is that since the prototype of a mixin is not inserted into the object's prototype chain that object does not automatically get any updates to the prototype object. Also, `instanceof` doesn't work with mixins as it does with normal inheritance. However, with carefully constructed code this pattern can be very useful.
 
-### Object#is
+### Object.is
 
-The `instanceof` operator can be used to check if an object inherits from a function (i.e. if that function's prototype appears in the object's prototype chain). However, this doesn't take into account mixins. `Object#is` solves this problem for us.
+The `instanceof` operator can be used to check if an object inherits from a function (i.e. if that function's prototype appears in the object's prototype chain). However, this doesn't take into account mixins. `Object.is` addresses this problem.
 
 Continuing from the example above:
 
 ```javascript
-view.is(View); // true
-view.is(Scrollable); // true
-view.is(Draggable); // true
+view instanceof View; // true
+view instanceof Scrollable; // false
+view instanceof Draggable; // false
+Object.is(view, View); // true
+Object.is(view, Scrollable); // true
+Object.is(view, Draggable); // true
 ```
 
-### Object#extend
+### Object.extend
 
 It's extremely common to need to copy the own properties of one object to another efficiently. This can be useful when cloning objects, for example, or when mixing in methods of a function's prototype on an object (see the Mixins section above).
 
-To use it, simply call `extend` on any object and pass it another object to copy properties from.
-
-### Object#guid
-
-In Monterey, every object has an `guid` property that is globally unique to that object. This can be useful in many different situations. For example, [jQuery](http://jquery.com)'s event subsystem assigns a globally unique id to event handlers so that it can correctly identify a function later when removing event handlers. Ruby's [Object class](http://ruby-doc.org/core-1.9.3/Object.html) includes an `object_id` method that does the same thing.
-
-This id is not generated until you need it so it doesn't slow down normal object instantiation. Use it on any object.
-
 ```javascript
 var a = {};
-var b = {};
+var b = { message: 'Hello!' };
 
-assert(a.guid !== b.guid);
+Object.extend(a, b);
+
+a.message; // "Hello!"
 ```
 
 ### Object#toString

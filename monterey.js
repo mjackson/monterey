@@ -5,222 +5,199 @@
 
 (function () {
 
-  var _guid = 1;
   var slice = Array.prototype.slice;
   var defineProperty = Object.defineProperty;
   var defineProperties = Object.defineProperties;
+  var guid = 1;
 
-  defineProperties(Object.prototype, {
-
-    /**
-     * Returns a unique identifier for this object, generated on-demand.
-     */
-    guid: {
-      get: function () {
-        if (!this.hasOwnProperty("_guid")) {
-          defineProperty(this, "_guid", { value: _guid++, writable: true });
-        }
-
-        return this._guid;
-      },
-      set: function (value) {
-        if (!this.hasOwnProperty("_guid")) {
-          defineProperty(this, "_guid", { value: value, writable: true });
-        } else {
-          this._guid = value;
-        }
-
-        return value;
-      }
-    },
+  defineProperties(Object, {
 
     /**
-     * Extends this object with all *enumerable* *own* properties of the
-     * given object.
+     * Extends the given object with all the *enumerable* *own* properties of
+     * the extensions object.
      */
     extend: {
-      value: function (object) {
-        for (var property in object) {
-          if (object.hasOwnProperty(property)) {
-            this[property] = object[property];
+      value: function (object, extensions) {
+        for (var property in extensions) {
+          if (extensions.hasOwnProperty(property)) {
+            object[property] = extensions[property];
           }
         }
 
-        return this;
+        return object;
       }
     },
 
     /**
-     * Returns the function this object is an instance of.
-     */
-    class: {
-      get: function () {
-        return this.constructor;
-      }
-    },
-
-    /**
-     * Returns true if this object is an instance of the given constructor
+     * Returns true if the given object is an instance of the given constructor
      * function, or if it mixes in the given function.
+     *
+     * See also Object.mixesIn.
      */
     is: {
-      value: function (fn) {
-        return (this instanceof fn) || this.mixesIn(fn);
+      value: function (object, fn) {
+        return (object instanceof fn) || this.mixesIn(object, fn);
       }
     },
 
     /**
-     * Returns a string representation of an object that includes the name of
-     * its constructor.
-     */
-    toString: {
-      value: function () {
-        return "[object " + this.constructor.name + "]";
-      }
-    },
-
-    /**
-     * Returns an array of functions that have been "mixed in" to this object.
-     * See Object#mixin.
+     * Returns an array of functions that have been mixed in to this object.
      */
     mixins: {
-      get: function () {
-        if (!this.hasOwnProperty("_mixins")) {
-          defineProperty(this, "_mixins", { value: [] });
+      value: function (object) {
+        if (!object.hasOwnProperty('_mixins')) {
+          defineProperty(object, '_mixins', { value: [] });
         }
 
-        return this._mixins;
+        return object._mixins;
       }
     },
 
     /**
-     * Mixes in the given function into this object. This does the following two
-     * things:
+     * Mixes in the given function into the given object. This does the
+     * following two things:
      *
-     *   1. Calls the function in the context of this object with any additional
+     *   1. Calls the function in the context of the object with any additional
      *      arguments that are passed
-     *   2. Extends this object with the function's prototype
+     *   2. Extends the object with the function's prototype
      *
-     * See Object#extend.
+     * See also Object.extend.
      */
     mixin: {
-      value: function (fn) {
+      value: function (object, fn) {
         if (!Function.isFunction(fn)) {
-          throw new Error("Invalid mixin");
+          throw new Error('Invalid mixin');
         }
 
-        this.mixins.push(fn);
-
-        this.extend(fn.prototype);
-        fn.apply(this, slice.call(arguments, 1));
-
-        fn.trigger("mixedIn", this);
+        this.mixins(object).push(fn);
+        this.extend(object, fn.prototype);
+        fn.apply(object, slice.call(arguments, 2));
+        this.trigger(fn, 'mixedIn', this);
 
         return this;
       }
     },
 
     /**
-     * Returns true if this object mixes in the given function.
+     * Returns true if the given object mixes in the given function.
      */
     mixesIn: {
-      value: function (fn) {
-        return this.mixins.indexOf(fn) !== -1;
+      value: function (object, fn) {
+        return this.mixins(object).indexOf(fn) !== -1;
       }
     },
 
     /**
-     * Returns an object of event handlers that have been registered on this
-     * object, keyed by event type.
+     * Returns an object of event handlers that have been registered on the
+     * given object, keyed by event type.
      */
     events: {
-      get: function () {
-        if (!this.hasOwnProperty("_events")) {
-          defineProperty(this, "_events", { value: [] });
+      value: function (object) {
+        if (!object.hasOwnProperty('_events')) {
+          defineProperty(object, '_events', { value: [] });
         }
 
-        return this._events;
+        return object._events;
       }
     },
 
     /**
-     * Registers an event handler on this object.
+     * Registers an event handler on the given object for the given event type.
      */
     on: {
-      value: function (type, handler) {
+      value: function (object, type, handler) {
         if (!Function.isFunction(handler)) {
-          throw new Error("Invalid event handler");
+          throw new Error('Invalid event handler');
         }
 
-        var events = this.events[type];
+        var events = this.events(object);
+        var handlers = events[type];
 
-        if (!events) {
-          this.events[type] = events = [];
+        if (!handlers) {
+          events[type] = handlers = [];
         }
 
-        events.push({
-          type: type,
-          handler: handler
-        });
+        if (!handler._guid) {
+          handler._guid = 'monterey_' + String(guid++);
+        }
+
+        handlers.push(handler);
       }
     },
 
     /**
-     * Unregisters an event handler on this object. If the handler is not given,
-     * all event handlers registered for the given type are removed.
+     * Unregisters an event handler on the given object. If the handler is not
+     * given, all event handlers registered for the given type are removed.
      */
     off: {
-      value: function (type, handler) {
-        var events = this.events[type];
+      value: function (object, type, handler) {
+        var events = this.events(object);
 
-        if (!events) {
+        if (!handler) {
+          delete events[type];
           return;
         }
 
-        if (handler) {
-          var id = handler.guid;
+        var handlers = events[type];
+        var id = handler._guid;
 
-          for (var i = 0; i < events.length; ++i) {
-            if (events[i].handler.guid === id) {
-              events.splice(i--, 1); // A bit dangerous.
-            }
+        if (!handlers || !id) {
+          return;
+        }
+
+        for (var i = 0; i < handlers.length; ++i) {
+          if (handlers[i]._guid === id) {
+            handlers.splice(i--, 1); // A bit dangerous.
           }
-
-          return;
         }
-
-        delete this.events[type];
       }
     },
 
     /**
-     * Triggers an event of the given type on this object. This automatically
-     * calls all handlers for that type. If a handler returns false no more
-     * handlers are called.
+     * Triggers all event handlers of the given type on the given object in
+     * the order they were added, passing through any additional arguments.
+     * Returning false from an event handler cancels all remaining handlers.
      */
     trigger: {
-      value: function (type) {
-        var events = this.events[type];
+      value: function (object, type) {
+        var events = this.events(object);
+        var handlers = events[type];
 
-        if (!events) {
+        if (!handlers) {
           return;
         }
 
         var event = {
           type: type,
           time: new Date,
-          source: this
+          source: object
         };
 
-        var args = [event].concat(slice.call(arguments, 1));
+        var args = [event].concat(slice.call(arguments, 2));
 
-        for (var i = 0, len = events.length; i < len; ++i) {
+        for (var i = 0, len = handlers.length; i < len; ++i) {
           // Returning false from a handler cancels all remaining handlers.
-          if (events[i].handler.apply(this, args) === false) {
+          if (handlers[i].apply(object, args) === false) {
             break;
           }
         }
       }
+    }
+
+  });
+
+  function toString() {
+    return '[object ' + (this.constructor.name || 'anonymous') + ']';
+  }
+
+  defineProperties(Object.prototype, {
+
+    /**
+     * Returns a string representation of this object that includes the name of
+     * its constructor.
+     */
+    toString: {
+      value: toString
     }
 
   });
@@ -232,7 +209,7 @@
 
     isFunction: {
       value: function (object) {
-        return typeof object === "function";
+        return toString.call(object) === '[object Function]';
       }
     }
 
@@ -248,28 +225,28 @@
      *   2. Makes this function's prototype an instance of the given function's
      *      prototype
      *
-     * See Object#extend.
+     * See also Object.extend.
      */
     inherit: {
       value: function (fn) {
         if (!Function.isFunction(fn)) {
-          throw new Error("Invalid class");
+          throw new Error('Invalid class');
         }
 
-        this.extend(fn);
+        Object.extend(this, fn);
         this.prototype = Object.create(fn.prototype);
 
         // Preserve the constructor reference!
-        defineProperty(this.prototype, "constructor", { value: this });
+        defineProperty(this.prototype, 'constructor', { value: this });
 
-        fn.trigger("inherited", this);
+        Object.trigger(fn, 'inherited', this);
       }
     },
 
     /**
-     * Returns true if the given function inherits from this function.
+     * Returns true if the given function is a descendant of this function.
      */
-    isSuperclassOf: {
+    isAncestorOf: {
       value: function (fn) {
         return this.prototype.isPrototypeOf(fn.prototype);
       }
@@ -278,16 +255,16 @@
     /**
      * Returns true if this function inherits from the given function.
      */
-    isSubclassOf: {
+    inherits: {
       value: function (fn) {
-        return fn.isSuperclassOf(this);
+        return fn.isAncestorOf(this);
       }
     },
 
     /**
      * Returns the next function up in the prototype chain from this one.
      */
-    superclass: {
+    parent: {
       get: function () {
         var proto = Object.getPrototypeOf(this.prototype);
         return proto && proto.constructor;
@@ -303,7 +280,7 @@
         var ancestors = [];
         var fn = this;
 
-        while (fn = fn.superclass) {
+        while (fn = fn.parent) {
           ancestors.push(fn);
         }
 
