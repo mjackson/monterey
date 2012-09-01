@@ -54,7 +54,7 @@ In Monterey, any JavaScript object is able to register event handlers and notify
   - `Object.off(object, type, [ handler ])`
   - `Object.trigger(object, type, args...)`
 
-`Object.on` is used to register a handler function for a given type of event on any object. `Object#trigger` triggers an event of a given type and calls all handlers for events of that type with an event object and any additional arguments given in the scope of the receiver. `Object#off` un-registers a specific event handler if given, or all event handlers for the given type if no handler is given.
+`Object.on` is used to register a handler function for a given type of event on any object. `Object.trigger` triggers an event of a given type and calls all handlers for events of that type with an event object and any additional arguments given in the scope of the receiver. `Object.off` un-registers a specific event handler if given, or all event handlers for the given type if no handler is given.
 
 Functions in Monterey make use of this feature to trigger "inherited" events when another function inherits from them (see the Inheritance section above).
 
@@ -67,7 +67,7 @@ function Person(name) {
 // is inherited.
 Person.children = [];
 
-Person.on("inherited", function (e, subclass) {
+Object.on(Person, "inherited", function (e, subclass) {
   e.type; // "inherited"
   e.time; // Date
   e.source; // Person
