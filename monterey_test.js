@@ -126,14 +126,16 @@ vows.describe('monterey').addBatch({
       var a = function () {};
       var b = {};
 
-      var called = false;
-      Object.on(a, 'mixedIn', function () {
+      var called = false, object;
+      Object.on(a, 'mixedIn', function (e, obj) {
         called = true;
+        object = obj;
       });
 
       assert(!called);
       Object.mixin(b, a);
       assert(called);
+      assert.strictEqual(object, b);
     }
   },
   'Object.mixesIn': {

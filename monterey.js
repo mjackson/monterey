@@ -36,7 +36,7 @@
      */
     is: {
       value: function (object, fn) {
-        return (object instanceof fn) || this.mixesIn(object, fn);
+        return (object instanceof fn) || Object.mixesIn(object, fn);
       }
     },
 
@@ -69,12 +69,11 @@
           throw new Error('Invalid mixin');
         }
 
-        this.mixins(object).push(fn);
-        this.extend(object, fn.prototype);
+        Object.mixins(object).push(fn);
+        Object.extend(object, fn.prototype);
         fn.apply(object, slice.call(arguments, 2));
-        this.trigger(fn, 'mixedIn', this);
 
-        return this;
+        Object.trigger(fn, 'mixedIn', object);
       }
     },
 
@@ -83,7 +82,7 @@
      */
     mixesIn: {
       value: function (object, fn) {
-        return this.mixins(object).indexOf(fn) !== -1;
+        return Object.mixins(object).indexOf(fn) !== -1;
       }
     },
 
@@ -110,7 +109,7 @@
           throw new Error('Invalid event handler');
         }
 
-        var events = this.events(object);
+        var events = Object.events(object);
         var handlers = events[type];
 
         if (!handlers) {
@@ -131,7 +130,7 @@
      */
     off: {
       value: function (object, type, handler) {
-        var events = this.events(object);
+        var events = Object.events(object);
 
         if (!handler) {
           delete events[type];
@@ -160,7 +159,7 @@
      */
     trigger: {
       value: function (object, type) {
-        var events = this.events(object);
+        var events = Object.events(object);
         var handlers = events[type];
 
         if (!handlers) {
@@ -277,8 +276,7 @@
      */
     ancestors: {
       get: function () {
-        var ancestors = [];
-        var fn = this;
+        var ancestors = [], fn = this;
 
         while (fn = fn.parent) {
           ancestors.push(fn);
