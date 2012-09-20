@@ -15,12 +15,37 @@ Even though a function automatically comes with a prototype, a function may actu
 Monterey provides the following properties and methods that make it easier to use this pattern of inheritance in JavaScript:
 
   - `Function#inherit(fn)`
+  - `Function#extend([prototypeProps], [constructorProps])`
   - `Function#isAncestorOf(fn)`
   - `Function#inherits(fn)`
   - `Function#parent`
   - `Function#ancestors`
 
-`Function#inherit` is used to set up the prototype chain from one constructor function to another.
+`Function#extend` is used to create an inheritance hierarchy that automatically sets up the prototype chain from one constructor function to another.
+
+```javascript
+var Person = Object.extend({
+  initialize: function (name) {
+    this.name = name;
+  }
+});
+
+var Employee = Person.extend({
+  initialize: function (name, title) {
+    Person.call(this, name);
+    this.title = title;
+  }
+});
+
+Employee.parent; // Person
+Employee.inherits(Person); // true
+Person.isAncestorOf(Employee); // true
+Employee.ancestors; // [Person, Object]
+```
+
+Note: It is important to remember to call the parent function inside the child's initialize method, otherwise you'll probably be missing some important initialization logic the parent provides.
+
+Under the hood `Function#extend` is just using Monterey's `Function#inherit` to setup the prototype chain. Thus, the above example could also be written more simply as:
 
 ```javascript
 function Person(name) {
@@ -33,14 +58,9 @@ function Employee(name, title) {
 }
 
 Employee.inherit(Person);
-
-Employee.parent; // Person
-Employee.inherits(Person); // true
-Person.isAncestorOf(Employee); // true
-Employee.ancestors; // [Person, Object]
 ```
 
-Note: It is important to remember to call the parent function inside the child constructor, otherwise you'll probably be missing some important initialization logic the parent provides.
+The tradeoff between using `Function#extend` and `Function#inherits` directly is that the former lets you define properties of the function's prototype more succinctly whereas the latter permits you to use named functions.
 
 ### Events
 
@@ -152,7 +172,7 @@ Object.is(view, Scrollable); // true
 Object.is(view, Draggable); // true
 ```
 
-### Object.extend
+### Object.merge
 
 It's extremely common to need to copy the own properties of one object to another efficiently. This can be useful when cloning objects, for example, or when mixing in methods of a function's prototype on an object (see the Mixins section above).
 
@@ -160,7 +180,7 @@ It's extremely common to need to copy the own properties of one object to anothe
 var a = {};
 var b = { message: 'Hello!' };
 
-Object.extend(a, b);
+Object.merge(a, b);
 
 a.message; // "Hello!"
 ```
