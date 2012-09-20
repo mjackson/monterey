@@ -4,7 +4,7 @@ var vows = require('vows');
 require('./monterey');
 
 vows.describe('monterey').addBatch({
-  'Object.extend': {
+  'Object.merge': {
     'is not enumerable': function () {
       assert(!Object.propertyIsEnumerable('extend'));
     },
@@ -18,7 +18,7 @@ vows.describe('monterey').addBatch({
       assert(!b.propertyIsEnumerable('a'));
       assert(b.propertyIsEnumerable('b'));
 
-      Object.extend(a, b);
+      Object.merge(a, b);
 
       assert.deepEqual(['b'], Object.getOwnPropertyNames(a));
     }

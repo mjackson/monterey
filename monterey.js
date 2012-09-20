@@ -13,10 +13,10 @@
   defineProperties(Object, {
 
     /**
-     * Extends the given object with all the *enumerable* *own* properties of
-     * any additional arguments.
+     * Applies all *enumerable* *own* properties of any additional arguments
+     * to the given object.
      */
-    extend: {
+    merge: {
       value: function (object) {
         var extensions = slice.call(arguments, 1);
 
@@ -65,7 +65,7 @@
      *      arguments that are passed
      *   2. Extends the object with the function's prototype
      *
-     * See also Object.extend.
+     * See also Object.merge.
      */
     mixin: {
       value: function (object, fn) {
@@ -74,7 +74,7 @@
         }
 
         Object.mixins(object).push(fn);
-        Object.extend(object, fn.prototype);
+        Object.merge(object, fn.prototype);
         fn.apply(object, slice.call(arguments, 2));
 
         Object.trigger(fn, 'mixedIn', object);
@@ -212,7 +212,7 @@
      *   2. Makes this function's prototype an instance of the given function's
      *      prototype
      *
-     * See also Object.extend.
+     * See also Object.merge.
      */
     inherit: {
       value: function (fn) {
@@ -220,7 +220,7 @@
           throw new Error('Invalid class');
         }
 
-        Object.extend(this, fn);
+        Object.merge(this, fn);
         this.prototype = Object.create(fn.prototype);
 
         // Preserve the constructor reference!
@@ -233,11 +233,10 @@
     /**
      * Creates a new function that inherits from this function. The new function
      * calls an "initialize" method on instances of itself when invoked, if
-     * present on the prototype. The new function is also extended using the
-     * given prototype and constructor properties on its prototype and itself
-     * respectively.
+     * present on the prototype. The new function also gets all properties of
+     * the given prototype/constructor object(s).
      *
-     * See also Object.extend.
+     * See also Object.merge.
      */
     extend: {
       value: function (prototypeProps, constructorProps) {
@@ -248,8 +247,8 @@
         };
 
         child.inherit(this);
-        Object.extend(child.prototype, prototypeProps || {});
-        Object.extend(child, constructorProps || {});
+        Object.merge(child.prototype, prototypeProps || {});
+        Object.merge(child, constructorProps || {});
 
         return child;
       }
