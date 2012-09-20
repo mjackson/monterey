@@ -14,15 +14,19 @@
 
     /**
      * Extends the given object with all the *enumerable* *own* properties of
-     * the extensions object.
+     * any additional arguments.
      */
     extend: {
-      value: function (object, extensions) {
-        for (var property in extensions) {
-          if (extensions.hasOwnProperty(property)) {
-            object[property] = extensions[property];
+      value: function (object) {
+        var extensions = slice.call(arguments, 1);
+
+        extensions.forEach(function (extension) {
+          for (var property in extension) {
+            if (extension.hasOwnProperty(property)) {
+              object[property] = extension[property];
+            }
           }
-        }
+        });
 
         return object;
       }
@@ -185,22 +189,6 @@
 
   });
 
-  function toString() {
-    return '[object ' + (this.constructor.name || 'anonymous') + ']';
-  }
-
-  defineProperties(Object.prototype, {
-
-    /**
-     * Returns a string representation of this object that includes the name of
-     * its constructor.
-     */
-    toString: {
-      value: toString
-    }
-
-  });
-
   /**
    * Returns true if the given object is a function.
    */
@@ -208,7 +196,7 @@
 
     isFunction: {
       value: function (object) {
-        return toString.call(object) === '[object Function]';
+        return typeof object === 'function';
       }
     }
 
@@ -239,6 +227,31 @@
         defineProperty(this.prototype, 'constructor', { value: this });
 
         Object.trigger(fn, 'inherited', this);
+      }
+    },
+
+    /**
+     * Creates a new function that inherits from this function. The new function
+     * calls an "initialize" method on instances of itself when invoked, if
+     * present on the prototype. The new function is also extended using the
+     * given prototype and constructor properties on its prototype and itself
+     * respectively.
+     *
+     * See also Object.extend.
+     */
+    extend: {
+      value: function (prototypeProps, constructorProps) {
+        var child = function () {
+          if (Function.isFunction(this.initialize)) {
+            this.initialize.apply(this, arguments);
+          }
+        };
+
+        child.inherit(this);
+        Object.extend(child.prototype, prototypeProps || {});
+        Object.extend(child, constructorProps || {});
+
+        return child;
       }
     },
 

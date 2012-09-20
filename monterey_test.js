@@ -321,17 +321,6 @@ vows.describe('monterey').addBatch({
       assert(!cCalled);
     }
   },
-  'Object#toString': {
-    'is not enumerable': function () {
-      assert(!(new Object).propertyIsEnumerable('toString'));
-    },
-    "generates a string with the name of an object's constructor": function () {
-      function A() {}
-      var a = new A();
-
-      assert.equal(a.toString(), '[object A]');
-    }
-  },
   'Function.isFunction': {
     'is not enumerable': function () {
       assert(!Function.propertyIsEnumerable('isFunction'));
@@ -389,6 +378,46 @@ vows.describe('monterey').addBatch({
       assert(!called);
       b.inherit(a);
       assert(called);
+    }
+  },
+  'Function#extend': {
+    'returns a new function that inherits from the receiver': function () {
+      function A() {}
+      var B = A.extend();
+
+      assert(Function.isFunction(B));
+      assert(B.inherits(A));
+    },
+    'returns a function that calls its initialize method when invoked': function () {
+      var called = false;
+
+      function A() {}
+      var B = A.extend({
+        initialize: function () {
+          called = true;
+          assert.instanceOf(this, B);
+        }
+      });
+
+      var b = new B();
+
+      assert(called);
+    },
+    "extends the new function's prototype with all instance properties": function () {
+      function A() {}
+      var B = A.extend({
+        sayHi: function () {}
+      });
+
+      assert(B.prototype.sayHi);
+    },
+    'extends the new function with all constructor properties': function () {
+      function A() {}
+      var B = A.extend({}, {
+        sayHi: function () {}
+      });
+
+      assert(B.sayHi);
     }
   },
   'Function#isAncestorOf': {
