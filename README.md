@@ -1,3 +1,5 @@
+[![build status](https://secure.travis-ci.org/mjijackson/monterey.js.png)](http://travis-ci.org/mjijackson/monterey.js)
+
 # Welcome to Monterey!
 
 Monterey is a tiny JavaScript library that neatly encapsulates several very common usage patterns and makes them a core part of the language. Some of these features have to do with object-oriented programming, reflection, and inheritance, while others are geared towards enabling a more fluent event-driven interface.
