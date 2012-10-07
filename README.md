@@ -201,11 +201,11 @@ Using [npm](http://npmjs.org):
 
 Otherwise, [download](https://github.com/mjijackson/monterey.js/downloads) the package from GitHub and include monterey.js as you would any other JavaScript file.
 
-## Testing
+## Tests
 
-Monterey includes a test suite that runs on [node](http://nodejs.org) using the [vows](http://vowsjs.org) testing framework. To run the tests, first install node and vows, then use:
+Run the tests with [mocha](http://visionmedia.github.com/mocha/):
 
-    $ vows monterey_test.js
+    $ mocha test
 
 ## License
 
