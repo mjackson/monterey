@@ -19,6 +19,19 @@ function checkDescriptor(object, name, enumerable, writable, configurable) {
 }
 
 describe('Object', function () {
+  describe('.guid', function () {
+    checkDescriptor(Object, 'guid', false, true, true);
+
+    it('generates a unique id for each object', function () {
+      var a = Object.guid({});
+      var b = Object.guid({});
+
+      assert.ok(a);
+      assert.ok(b);
+      assert.ok(a !== b);
+    });
+  });
+
   describe('.merge', function () {
     checkDescriptor(Object, 'merge', false, true, true);
 

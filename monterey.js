@@ -25,6 +25,19 @@
 
   addProperties(Object, {
 
+    guid: function (object) {
+      if (!object.hasOwnProperty('__guid__')) {
+        Object.defineProperty(object, '__guid__', {
+          value: 'monterey_' + String(guid++),
+          enumerable: false,
+          writable: false,
+          configurable: false
+        });
+      }
+
+      return object.__guid__;
+    },
+
     /**
      * Copies all *enumerable* *own* properties of any additional arguments to
      * the given object.
@@ -67,7 +80,7 @@
      */
     mixins: function (object) {
       if (!object.hasOwnProperty('__mixins__')) {
-        Object.defineProperty(object, '__mixins__', { value: [] });
+        addProperty(object, '__mixins__', []);
       }
 
       return object.__mixins__;
@@ -108,7 +121,7 @@
      */
     events: function (object) {
       if (!object.hasOwnProperty('__events__')) {
-        Object.defineProperty(object, '__events__', { value: {} });
+        addProperty(object, '__events__', {});
       }
 
       return object.__events__;
@@ -129,11 +142,6 @@
         events[type] = handlers = [];
       }
 
-      // Note: jQuery also uses the _guid property.
-      if (!handler._guid) {
-        handler._guid = 'monterey_' + String(guid++);
-      }
-
       handlers.push(handler);
 
       Object.trigger(object, 'eventAdded', type, handler);
@@ -152,14 +160,14 @@
       }
 
       var handlers = events[type];
-      var id = handler._guid;
+      var id = Object.guid(handler);
 
       if (!handlers || !id) {
         return;
       }
 
       for (var i = 0; i < handlers.length; ++i) {
-        if (handlers[i]._guid === id) {
+        if (handlers[i].__guid__ === id) {
           Object.trigger(object, 'eventRemoved', type, handlers.splice(i--, 1));
         }
       }
