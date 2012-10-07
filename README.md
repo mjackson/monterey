@@ -17,7 +17,7 @@ Monterey provides the following properties and methods that make it easier to us
   - `Function#inherit(fn)`
   - `Function#extend([prototypeProps], [constructorProps])`
   - `Function#isAncestorOf(fn)`
-  - `Function#inherits(fn)`
+  - `Function#isDescendantOf(fn)`
   - `Function#parent`
   - `Function#ancestors`
 
@@ -32,7 +32,7 @@ var Person = Object.extend({
 
 var Employee = Person.extend({
   initialize: function (name, title) {
-    Person.call(this, name);
+    Person.prototype.initialize.call(this, name);
     this.title = title;
   }
 });
@@ -43,7 +43,7 @@ Person.isAncestorOf(Employee); // true
 Employee.ancestors; // [Person, Object]
 ```
 
-Note: It is important to remember to call the parent function inside the child's initialize method, otherwise you'll probably be missing some important initialization logic the parent provides.
+Note: It is important to remember to call the parent function's initialize method inside the child's initialize method, otherwise you'll probably be missing some important initialization logic the parent provides.
 
 Under the hood `Function#extend` is just using Monterey's `Function#inherit` to setup the prototype chain. Thus, the above example could also be written more simply as:
 
@@ -60,7 +60,7 @@ function Employee(name, title) {
 Employee.inherit(Person);
 ```
 
-The tradeoff between using `Function#extend` and `Function#inherits` directly is that the former lets you define properties of the function's prototype more succinctly whereas the latter permits you to use named functions.
+The tradeoff between using `Function#extend` and `Function#inherits` directly is that the former lets you define properties of the function's prototype more succinctly whereas the latter permits you to use named functions. Also, `Function#extend` copies instance properties from parent functions to children.
 
 ### Events
 
@@ -172,7 +172,7 @@ Object.is(view, Scrollable); // true
 Object.is(view, Draggable); // true
 ```
 
-### Object.merge
+### Object.merge and Object.copy
 
 It's extremely common to need to copy the own properties of one object to another efficiently. This can be useful when cloning objects, for example, or when mixing in methods of a function's prototype on an object (see the Mixins section above).
 
@@ -185,19 +185,7 @@ Object.merge(a, b);
 a.message; // "Hello!"
 ```
 
-### Object#toString
-
-By default JavaScript's built-in `Object#toString` is not very useful for classes that you define yourself. Monterey fixes this by overriding the default behavior to always include the name of an object's constructor, even for user-defined classes.
-
-```javascript
-function Person(name) {
-  this.name = name;
-}
-
-var michael = new Person("Michael");
-
-michael.toString(); // "[object Person]"
-```
+If you simply want a copy of an existing object, use `Object.copy` which just merges an object with a new, blank object.
 
 ## Compatibility
 
