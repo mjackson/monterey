@@ -1,17 +1,19 @@
 {
   "author": "Michael Jackson <mjijackson@gmail.com>",
   "name": "monterey",
-  "description": "Minimal OO and functional toolkit for ES5 JavaScript",
+  "description": "A minimal OO and functional toolkit for ES5 JavaScript",
   "version": "0.6.0",
   "repository": {
     "url": "http://github.com/mjijackson/monterey.js.git"
   },
   "main": "./monterey",
   "scripts": {
-    "test": "vows --spec monterey_test.js"
+    "test": "mocha test"
   },
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "mocha": "1.5.0"
+  },
   "optionalDependencies": {},
   "engines": {
     "node": "*"

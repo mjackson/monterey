@@ -1,14 +1,28 @@
 var assert = require('assert');
-var vows = require('vows');
+require('../monterey');
 
-require('./monterey');
+function checkDescriptor(object, name, enumerable, writable, configurable) {
+  var descriptor = Object.getOwnPropertyDescriptor(object, name);
+  assert.ok(descriptor);
 
-vows.describe('monterey').addBatch({
-  'Object.merge': {
-    'is not enumerable': function () {
-      assert(!Object.propertyIsEnumerable('extend'));
-    },
-    'copies all enumerable own properties to the receiver': function () {
+  it('is' + (enumerable ? '' : ' not') + ' enumerable', function () {
+    assert.equal(descriptor.enumerable, enumerable);
+  });
+
+  it('is' + (writable ? '' : ' not') + ' writable', function () {
+    assert.equal(descriptor.writable, writable);
+  });
+
+  it('is' + (configurable ? '' : ' not') + ' configurable', function () {
+    assert.equal(descriptor.configurable, configurable);
+  });
+}
+
+describe('Object', function () {
+  describe('.merge', function () {
+    checkDescriptor(Object, 'merge', false, true, true);
+
+    it('copies all enumerable own properties to the receiver', function () {
       var a = {};
       var b = {};
 
@@ -21,68 +35,84 @@ vows.describe('monterey').addBatch({
       Object.merge(a, b);
 
       assert.deepEqual(['b'], Object.getOwnPropertyNames(a));
-    }
-  },
-  'Object.is': {
-    'is not enumerable': function () {
-      assert(!Object.propertyIsEnumerable('is'));
-    },
-    'returns true for direct instances of a function': function () {
+    });
+  });
+
+  describe('.copy', function () {
+    checkDescriptor(Object, 'copy', false, true, true);
+
+    it('creates a new object', function () {
+      var a = {};
+      var b = Object.copy(a);
+
+      assert.ok(a !== b);
+    });
+  });
+
+  describe('.is', function () {
+    checkDescriptor(Object, 'is', false, true, true);
+
+    it('returns true for direct instances of a function', function () {
       var a = function () {};
       var b = new a;
       assert(Object.is(b, a));
-    },
-    'returns true for indirect instances of a function': function () {
+    });
+
+    it('returns true for indirect instances of a function', function () {
       var a = function () {};
       var b = function () {};
       b.inherit(a);
       var c = new b;
       assert(Object.is(c, b));
       assert(Object.is(c, a));
-    },
-    'returns false for instances of a different function': function () {
+    });
+
+    it('returns false for instances of a different function', function () {
       var a = function () {};
       var b = function () {};
       var c = new b;
       assert(Object.is(c, b));
       assert(!Object.is(c, a));
-    },
-    'returns true for objects that mixin a constructor': function () {
+    });
+
+    it('returns true for objects that mixin a constructor', function () {
       var a = function () {};
       var b = function () {};
       var c = new b;
       Object.mixin(c, a);
       assert(Object.is(c, b));
       assert(Object.is(c, a));
-    }
-  },
-  'Object.mixins': {
-    'is not enumerable': function () {
-      assert(!Object.propertyIsEnumerable('mixins'));
-    },
-    'returns an new empty array for a new object': function () {
+    });
+  });
+
+  describe('.mixins', function () {
+    checkDescriptor(Object, 'mixins', false, true, true);
+
+    it('returns an new empty array for a new object', function () {
       var a = {};
       assert.deepEqual([], Object.mixins(a));
-    },
-    'returns the same array on subsequent calls': function () {
+    });
+
+    it('returns the same array on subsequent calls', function () {
       var a = {};
       var mixins = Object.mixins(a);
       assert(mixins);
       assert.strictEqual(mixins, Object.mixins(a));
-    },
-    'returns different arrays for two different objects': function () {
+    });
+
+    it('returns different arrays for two different objects', function () {
       var a = {};
       var b = {};
       assert.deepEqual([], Object.mixins(a));
       assert.deepEqual([], Object.mixins(b));
       assert(Object.mixins(a) !== Object.mixins(b));
-    }
-  },
-  'Object.mixin': {
-    'is not enumerable': function () {
-      assert(!Object.propertyIsEnumerable('mixin'));
-    },
-    'calls the given function with any additional arguments': function () {
+    });
+  });
+
+  describe('.mixin', function () {
+    checkDescriptor(Object, 'mixin', false, true, true);
+
+    it('calls the given function with any additional arguments', function () {
       var args;
       var a = {};
       var b = function () {
@@ -90,8 +120,9 @@ vows.describe('monterey').addBatch({
       };
       Object.mixin(a, b, 1, 2, 3);
       assert.deepEqual([1, 2, 3], args);
-    },
-    'sets the receiver as the scope of the function call': function () {
+    });
+
+    it('sets the receiver as the scope of the function call', function () {
       var scope;
       var a = {};
       var b = function () {
@@ -99,8 +130,9 @@ vows.describe('monterey').addBatch({
       };
       Object.mixin(a, b);
       assert.strictEqual(scope, a);
-    },
-    "extends the receiver with all enumerable properties of the function's prototype": function () {
+    });
+
+    it("extends the receiver with all enumerable properties of the function's prototype", function () {
       var a = {};
       var b = function () {};
       b.prototype.c = 'c';
@@ -121,8 +153,9 @@ vows.describe('monterey').addBatch({
       assert(a.hasOwnProperty('d'));
       assert.strictEqual(b.prototype.d, a.d);
       assert(!a.hasOwnProperty('e'));
-    },
-    'triggers a mixedIn event on the given function': function () {
+    });
+
+    it('triggers a mixedIn event on the given function', function () {
       var a = function () {};
       var b = {};
 
@@ -136,72 +169,75 @@ vows.describe('monterey').addBatch({
       Object.mixin(b, a);
       assert(called);
       assert.strictEqual(object, b);
-    }
-  },
-  'Object.mixesIn': {
-    'is not enumerable': function () {
-      assert(!Object.propertyIsEnumerable('mixesIn'));
-    },
-    'returns true for an object that mixes in a given function': function () {
+    });
+  });
+
+  describe('.mixesIn', function () {
+    checkDescriptor(Object, 'mixesIn', false, true, true);
+
+    it('returns true for an object that mixes in a given function', function () {
       var a = function () {};
       var b = {};
 
       assert(!Object.mixesIn(b, a));
       Object.mixin(b, a);
       assert(Object.mixesIn(b, a));
-    }
-  },
-  'Object.events': {
-    'is not enumerable': function () {
-      assert(!Object.propertyIsEnumerable('events'));
-    },
-    'returns an new empty array for a new object': function () {
+    });
+  });
+
+  describe('.events', function () {
+    checkDescriptor(Object, 'events', false, true, true);
+
+    it('returns an new empty array for a new object', function () {
       var a = {};
       assert.deepEqual([], Object.events(a));
-    },
-    'returns the same array on subsequent calls': function () {
+    });
+
+    it('returns the same array on subsequent calls', function () {
       var a = {};
       var events = Object.events(a);
       assert(events);
       assert.strictEqual(events, Object.events(a));
-    },
-    'returns different arrays for two different objects': function () {
+    });
+
+    it('returns different arrays for two different objects', function () {
       var a = {};
       var b = {};
       assert.deepEqual([], Object.events(a));
       assert.deepEqual([], Object.events(b));
       assert(Object.events(a) !== Object.events(b));
-    }
-  },
-  'Object.on': {
-    'is not enumerable': function () {
-      assert(!Object.propertyIsEnumerable('on'));
-    },
-    'throws an error when an invalid event handler is given': function () {
+    });
+  });
+
+  describe('.on', function () {
+    checkDescriptor(Object, 'on', false, true, true);
+
+    it('throws an error when an invalid event handler is given', function () {
       var a = {};
 
       assert.throws(function () {
         Object.on(a, 'b', 'c');
       });
-    },
-    'registers an event handler for all events of a given type': function () {
+    });
+
+    it('registers an event handler for all events of a given type', function () {
       var a = {};
-      assert.isUndefined(Object.events(a)['b']);
+      assert.ok(typeof Object.events(a)['b'] === 'undefined');
 
       Object.on(a, 'b', function () {});
 
       assert(Object.events(a)['b']);
       assert(Array.isArray(Object.events(a)['b']));
-    }
-  },
-  'Object.off': {
-    'is not enumerable': function () {
-      assert(!Object.propertyIsEnumerable('off'));
-    },
-    'removes a single handler when one is given': function () {
+    });
+  });
+
+  describe('.off', function () {
+    checkDescriptor(Object, 'off', false, true, true);
+
+    it('removes a single handler when one is given', function () {
       var a = {};
 
-      assert.isUndefined(Object.events(a)['b']);
+      assert.ok(typeof Object.events(a)['b'] === 'undefined');
 
       var b = function () {};
       Object.on(a, 'b', b);
@@ -216,11 +252,12 @@ vows.describe('monterey').addBatch({
       assert(Object.events(a)['b']);
       assert(Array.isArray(Object.events(a)['b']));
       assert.equal(Object.events(a)['b'].length, 1);
-    },
-    'removes multiple instances of the same handler': function () {
+    });
+
+    it('removes multiple instances of the same handler', function () {
       var a = {};
 
-      assert.isUndefined(Object.events(a)['b']);
+      assert.ok(typeof Object.events(a)['b'] === 'undefined');
 
       var b = function () {};
       Object.on(a, 'b', b);
@@ -236,13 +273,13 @@ vows.describe('monterey').addBatch({
       assert(Object.events(a)['b']);
       assert(Array.isArray(Object.events(a)['b']));
       assert.equal(1, Object.events(a)['b'].length);
-    }
-  },
-  'Object.trigger': {
-    'is not enumerable': function () {
-      assert(!Object.propertyIsEnumerable('trigger'));
-    },
-    'calls all handlers for a given event type': function () {
+    });
+  });
+
+  describe('.trigger', function () {
+    checkDescriptor(Object, 'trigger', false, true, true);
+
+    it('calls all handlers for a given event type', function () {
       var a = {};
       var bCalled = false;
       var b = function () {
@@ -259,8 +296,9 @@ vows.describe('monterey').addBatch({
 
       assert(bCalled);
       assert(cCalled);
-    },
-    'calls handlers in the scope of the receiver': function () {
+    });
+
+    it('calls handlers in the scope of the receiver', function () {
       var scope;
       var a = {};
 
@@ -268,11 +306,12 @@ vows.describe('monterey').addBatch({
         scope = this;
       });
 
-      assert.isUndefined(scope);
+      assert.ok(typeof scope === 'undefined');
       Object.trigger(a, 'b');
       assert.strictEqual(a, scope);
-    },
-    'passes an event object as the first argument to handlers': function () {
+    });
+
+    it('passes an event object as the first argument to handlers', function () {
       var ev;
       var a = {};
       var b = function (e) {
@@ -280,15 +319,16 @@ vows.describe('monterey').addBatch({
       };
 
       Object.on(a, 'c', b);
-      assert.isUndefined(ev);
+      assert.ok(typeof ev === 'undefined');
       Object.trigger(a, 'c');
 
       assert(ev);
       assert(ev.time);
       assert.equal('c', ev.type);
       assert.strictEqual(a, ev.source);
-    },
-    'calls handlers with any additional arguments': function () {
+    });
+
+    it('calls handlers with any additional arguments', function () {
       var args;
       var a = {};
 
@@ -300,8 +340,9 @@ vows.describe('monterey').addBatch({
       Object.trigger(a, 'b', 1, 2, 3);
 
       assert.deepEqual([1, 2, 3], args);
-    },
-    'stops calling handlers when one returns false': function () {
+    });
+
+    it('stops calling handlers when one returns false', function () {
       var a = {};
       var bCalled = false;
       var b = function () {
@@ -319,31 +360,35 @@ vows.describe('monterey').addBatch({
 
       assert(bCalled);
       assert(!cCalled);
-    }
-  },
-  'Function.isFunction': {
-    'is not enumerable': function () {
-      assert(!Function.propertyIsEnumerable('isFunction'));
-    },
-    'returns true for a function literal': function () {
+    });
+  });
+});
+
+describe('Function', function () {
+  describe('.isFunction', function () {
+    checkDescriptor(Function, 'isFunction', false, true, true);
+
+    it('returns true for a function literal', function () {
       assert(Function.isFunction(Object));
-    },
-    'returns true for a new Function': function () {
+    });
+
+    it('returns true for a new Function', function () {
       assert(Function.isFunction(new Function('a', 'return a')));
-    },
-    'returns false for objects that are not functions': function () {
+    });
+
+    it('returns false for objects that are not functions', function () {
       assert(!Function.isFunction({}));
       assert(!Function.isFunction([]));
       assert(!Function.isFunction(1));
       assert(!Function.isFunction(true));
       assert(!Function.isFunction(null));
-    }
-  },
-  'Function#inherit': {
-    'is not enumerable': function () {
-      assert(!(new Function).propertyIsEnumerable('inherit'));
-    },
-    'extends the receiver with all enumerable own properties of the given function': function () {
+    });
+  });
+
+  describe('#inherit', function () {
+    checkDescriptor(Function.prototype, 'inherit', false, true, true);
+
+    it('extends the receiver with all enumerable own properties of the given function', function () {
       var a = function () {};
       a.staticProp = 'a';
       var b = function () {};
@@ -351,22 +396,25 @@ vows.describe('monterey').addBatch({
 
       assert('staticProp' in b);
       assert.equal('a', b.staticProp);
-    },
-    'sets the prototype of the receiver to an instance of the given function': function () {
+    });
+
+    it('sets the prototype of the receiver to an instance of the given function', function () {
       var a = function () {};
       var b = function () {};
       b.inherit(a);
 
       assert(b.prototype instanceof a);
-    },
-    "preserves the constructor property of the receiver's prototype": function () {
+    });
+
+    it("preserves the constructor property of the receiver's prototype", function () {
       var a = function () {};
       var b = function () {};
       b.inherit(a);
 
       assert.equal(b, b.prototype.constructor);
-    },
-    'triggers an inherited event on the given function': function () {
+    });
+
+    it('triggers an inherited event on the given function', function () {
       var a = function () {};
       var b = function () {};
 
@@ -378,60 +426,67 @@ vows.describe('monterey').addBatch({
       assert(!called);
       b.inherit(a);
       assert(called);
-    }
-  },
-  'Function#extend': {
-    'returns a new function that inherits from the receiver': function () {
+    });
+  });
+
+  describe('#extend', function () {
+    checkDescriptor(Function.prototype, 'extend', false, true, true);
+
+    it('returns a new function that is descended from the receiver', function () {
       function A() {}
       var B = A.extend();
 
       assert(Function.isFunction(B));
-      assert(B.inherits(A));
-    },
-    'returns a function that calls its initialize method when invoked': function () {
+      assert(B.isDescendantOf(A));
+    });
+
+    it('returns a function that calls its initialize method when invoked', function () {
       var called = false;
 
       function A() {}
       var B = A.extend({
         initialize: function () {
           called = true;
-          assert.instanceOf(this, B);
+          assert.ok(this instanceof B);
         }
       });
 
       var b = new B();
 
       assert(called);
-    },
-    "extends the new function's prototype with all instance properties": function () {
+    });
+
+    it("extends the new function's prototype with all instance properties", function () {
       function A() {}
       var B = A.extend({
         sayHi: function () {}
       });
 
       assert(B.prototype.sayHi);
-    },
-    'extends the new function with all constructor properties': function () {
+    });
+
+    it('extends the new function with all constructor properties', function () {
       function A() {}
       var B = A.extend({}, {
         sayHi: function () {}
       });
 
       assert(B.sayHi);
-    }
-  },
-  'Function#isAncestorOf': {
-    'is not enumerable': function () {
-      assert(!(new Function).propertyIsEnumerable('isInheritedBy'));
-    },
-    'returns true for a function that is directly inherited by another': function () {
+    });
+  });
+
+  describe('#isAncestorOf', function () {
+    checkDescriptor(Function.prototype, 'isAncestorOf', false, true, true);
+
+    it('returns true for a function that is directly inherited by another', function () {
       var a = function () {};
       var b = function () {};
       b.inherit(a);
 
       assert(a.isAncestorOf(b));
-    },
-    'returns true for a function that is indirectly inherited by another': function () {
+    });
+
+    it('returns true for a function that is indirectly inherited by another', function () {
       var a = function () {};
       var b = function () {};
       b.inherit(a);
@@ -439,53 +494,56 @@ vows.describe('monterey').addBatch({
       c.inherit(b);
 
       assert(a.isAncestorOf(c));
-    }
-  },
-  'Function#inherits': {
-    'is not enumerable': function () {
-      assert(!(new Function).propertyIsEnumerable('inherits'));
-    },
-    'returns true for a function that directly inherits from another': function () {
+    });
+  });
+
+  describe('#isDescendantOf', function () {
+    checkDescriptor(Function.prototype, 'isDescendantOf', false, true, true);
+
+    it('returns true for a function that directly descends from another', function () {
       var a = function () {};
       var b = function () {};
       b.inherit(a);
 
-      assert(b.inherits(a));
-    },
-    'returns true for a function that indirectly inherits from another': function () {
+      assert(b.isDescendantOf(a));
+    });
+
+    it('returns true for a function that indirectly descends from another', function () {
       var a = function () {};
       var b = function () {};
       b.inherit(a);
       var c = function () {};
       c.inherit(b);
 
-      assert(c.inherits(a));
-    }
-  },
-  'Function#parent': {
-    'is not enumerable': function () {
-      assert(!(new Function).propertyIsEnumerable('parent'));
-    },
-    'returns the function from which a function inherits': function () {
+      assert(c.isDescendantOf(a));
+    });
+  });
+
+  describe('#parent', function () {
+    checkDescriptor(Function.prototype, 'parent', false, undefined, true);
+
+    it('returns the function from which a function is directly descended', function () {
       var a = function () {};
       var b = function () {};
       b.inherit(a);
 
       assert.equal(a, b.parent);
-    },
-    'returns Object for top-level functions': function () {
+    });
+
+    it('returns Object for top-level functions', function () {
       var a = function () {};
       assert.equal(Object, a.parent);
-    },
-    'returns null for Object': function () {
+    });
+
+    it('returns null for Object', function () {
       assert.equal(null, Object.parent);
-    }
-  },
-  'Function#ancestors': {
-    'is not enumerable': function () {
-      assert(!(new Function).propertyIsEnumerable('ancestors'));
-    },
-    'returns an array of functions a function inherits from in hierarchical order': function () {
+    });
+  });
+
+  describe('#ancestors', function () {
+    checkDescriptor(Function.prototype, 'ancestors', false, undefined, true);
+
+    it('returns an array of functions a function descends from in hierarchical order', function () {
       var a = function () {};
       var b = function () {};
       b.inherit(a);
@@ -493,6 +551,6 @@ vows.describe('monterey').addBatch({
       c.inherit(b);
 
       assert.deepEqual([b, a, Object], c.ancestors);
-    }
-  }
-}).export(module);
+    });
+  });
+});
