@@ -1,23 +1,6 @@
 var assert = require('assert');
 require('../monterey');
 
-function checkDescriptor(object, name, enumerable, writable, configurable) {
-  var descriptor = Object.getOwnPropertyDescriptor(object, name);
-  assert.ok(descriptor);
-
-  it('is' + (enumerable ? '' : ' not') + ' enumerable', function () {
-    assert.equal(descriptor.enumerable, enumerable);
-  });
-
-  it('is' + (writable ? '' : ' not') + ' writable', function () {
-    assert.equal(descriptor.writable, writable);
-  });
-
-  it('is' + (configurable ? '' : ' not') + ' configurable', function () {
-    assert.equal(descriptor.configurable, configurable);
-  });
-}
-
 describe('Object', function () {
   describe('.guid', function () {
     checkDescriptor(Object, 'guid', false, true, true);
@@ -584,3 +567,20 @@ describe('Function', function () {
     });
   });
 });
+
+function checkDescriptor(object, name, enumerable, writable, configurable) {
+  var descriptor = Object.getOwnPropertyDescriptor(object, name);
+  assert.ok(descriptor);
+
+  it('is' + (enumerable ? '' : ' not') + ' enumerable', function () {
+    assert.equal(descriptor.enumerable, enumerable);
+  });
+
+  it('is' + (writable ? '' : ' not') + ' writable', function () {
+    assert.equal(descriptor.writable, writable);
+  });
+
+  it('is' + (configurable ? '' : ' not') + ' configurable', function () {
+    assert.equal(descriptor.configurable, configurable);
+  });
+}
