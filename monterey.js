@@ -27,12 +27,7 @@
 
     guid: function (object) {
       if (!object.hasOwnProperty('__guid__')) {
-        Object.defineProperty(object, '__guid__', {
-          value: 'monterey_' + String(guid++),
-          enumerable: false,
-          writable: false,
-          configurable: false
-        });
+        addProperty(object, '__guid__', guid++);
       }
 
       return object.__guid__;
@@ -232,16 +227,9 @@
         throw 'Parent must be a function';
       }
 
-      Object.merge(this, parent);
-
-      this.prototype = Object.create(parent.prototype, {
-        constructor: {
-          value: this,
-          enumerable: false,
-          writable: true,
-          configurable: true
-        }
-      });
+      addProperties(this, parent);
+      this.prototype = Object.create(parent.prototype);
+      addProperty(this.prototype, 'constructor', this);
 
       Object.trigger(parent, 'inherited', this);
     },
@@ -263,10 +251,26 @@
       };
 
       child.inherit(parent);
-      Object.merge(child.prototype, prototypeProps || {});
-      Object.merge(child, constructorProps || {});
+      addProperties(child.prototype, prototypeProps || {});
+      addProperties(child, constructorProps || {});
 
       return child;
+    },
+
+    /**
+     * Returns true if this function is a direct ancestor of the
+     * given function.
+     */
+    isParentOf: function (fn) {
+      return this.prototype === Object.getPrototypeOf(fn.prototype);
+    },
+
+    /**
+     * Returns true if this function is a direct descendant of the
+     * given function.
+     */
+    isChildOf: function (fn) {
+      return fn.isParentOf(this);
     },
 
     /**
@@ -277,7 +281,7 @@
     },
 
     /**
-     * Returns true if this function inherits from the given function.
+     * Returns true if this function is a descendant of the given function.
      */
     isDescendantOf: function (fn) {
       return fn.isAncestorOf(this);

@@ -446,89 +446,117 @@ describe('Function', function () {
     checkDescriptor(Function.prototype, 'extend', false, true, true);
 
     it('returns a new function that is descended from the receiver', function () {
-      function A() {}
-      var B = A.extend();
+      var a = function () {};
+      var b = a.extend();
 
-      assert(Function.isFunction(B));
-      assert(B.isDescendantOf(A));
+      assert(Function.isFunction(b));
+      assert(b.isDescendantOf(a));
     });
 
     it('returns a function that calls its initialize method when invoked', function () {
       var called = false;
-
-      function A() {}
-      var B = A.extend({
+      var a = function () {};
+      var b = a.extend({
         initialize: function () {
           called = true;
-          assert.ok(this instanceof B);
+          assert.ok(this instanceof b);
         }
       });
 
-      var b = new B();
+      var instance = new b();
 
       assert(called);
     });
 
-    it("extends the new function's prototype with all instance properties", function () {
-      function A() {}
-      var B = A.extend({
+    it("extends the new function's prototype with all instance properties (not enumerable)", function () {
+      var a = function () {};
+      var b = a.extend({
         sayHi: function () {}
       });
 
-      assert(B.prototype.sayHi);
+      assert(b.prototype.sayHi);
+      assert(!b.prototype.propertyIsEnumerable('sayHi'));
     });
 
-    it('extends the new function with all constructor properties', function () {
-      function A() {}
-      var B = A.extend({}, {
+    it('extends the new function with all constructor properties (not enumerable)', function () {
+      var a = function () {};
+      var b = a.extend({}, {
         sayHi: function () {}
       });
 
-      assert(B.sayHi);
+      assert(b.sayHi);
+      assert(!b.propertyIsEnumerable('sayHi'));
+    });
+  });
+
+  var parent = function () {};
+  var child = function () {};
+  child.inherit(parent);
+  var grandchild = function () {};
+  grandchild.inherit(child);
+  var other = function () {};
+
+  describe('#isParentOf', function () {
+    checkDescriptor(Function.prototype, 'isParentOf', false, true, true);
+
+    it('returns true for a function that is a parent of another', function () {
+      assert(parent.isParentOf(child));
+    });
+
+    it('returns false for a function that is a grandparent of another', function () {
+      assert(!parent.isParentOf(grandchild));
+    });
+
+    it('returns false for a function that is not an ancestor of another', function () {
+      assert(!parent.isParentOf(other));
+    });
+  });
+
+  describe('#isChildOf', function () {
+    checkDescriptor(Function.prototype, 'isChildOf', false, true, true);
+
+    it('returns true for a function that is a child of another', function () {
+      assert(child.isChildOf(parent));
+    });
+
+    it('returns false for a function that is a grandchild of another', function () {
+      assert(!grandchild.isChildOf(parent));
+    });
+
+    it('returns false for a function that does not inherit from another', function () {
+      assert(!other.isChildOf(parent));
     });
   });
 
   describe('#isAncestorOf', function () {
     checkDescriptor(Function.prototype, 'isAncestorOf', false, true, true);
 
-    it('returns true for a function that is directly inherited by another', function () {
-      var a = function () {};
-      var b = function () {};
-      b.inherit(a);
-
-      assert(a.isAncestorOf(b));
+    it('returns true for a function that is the parent of another', function () {
+      assert(parent.isAncestorOf(child));
     });
 
-    it('returns true for a function that is indirectly inherited by another', function () {
-      var a = function () {};
-      var b = function () {};
-      b.inherit(a);
-      var c = function () {};
-      c.inherit(b);
+    it('returns true for a function that is an ancestor of another', function () {
+      assert(parent.isAncestorOf(grandchild));
+    });
 
-      assert(a.isAncestorOf(c));
+    it('returns false for a function that is not the ancestor of another', function () {
+      assert(!parent.isAncestorOf(other));
     });
   });
 
   describe('#isDescendantOf', function () {
     checkDescriptor(Function.prototype, 'isDescendantOf', false, true, true);
 
-    it('returns true for a function that directly descends from another', function () {
-      var a = function () {};
-      var b = function () {};
-      b.inherit(a);
-
-      assert(b.isDescendantOf(a));
+    it('returns true for a function that is a child of another', function () {
+      assert(child.isDescendantOf(parent));
     });
 
-    it('returns true for a function that indirectly descends from another', function () {
-      var a = function () {};
-      var b = function () {};
-      b.inherit(a);
-      var c = function () {};
-      c.inherit(b);
+    it('returns true for a function that is a grandchild of another', function () {
+      assert(grandchild.isDescendantOf(parent));
+    });
 
-      assert(c.isDescendantOf(a));
+    it('returns false for a function that is not a descendant of another', function () {
+      assert(!other.isDescendantOf(parent));
     });
   });
 
@@ -536,20 +564,15 @@ describe('Function', function () {
     checkDescriptor(Function.prototype, 'parent', false, undefined, true);
 
     it('returns the function from which a function is directly descended', function () {
-      var a = function () {};
-      var b = function () {};
-      b.inherit(a);
-
-      assert.equal(a, b.parent);
+      assert.strictEqual(parent, child.parent);
     });
 
     it('returns Object for top-level functions', function () {
-      var a = function () {};
-      assert.equal(Object, a.parent);
+      assert.strictEqual(Object, parent.parent);
     });
 
     it('returns null for Object', function () {
-      assert.equal(null, Object.parent);
+      assert.strictEqual(null, Object.parent);
     });
   });
 
@@ -557,13 +580,7 @@ describe('Function', function () {
     checkDescriptor(Function.prototype, 'ancestors', false, undefined, true);
 
     it('returns an array of functions a function descends from in hierarchical order', function () {
-      var a = function () {};
-      var b = function () {};
-      b.inherit(a);
-      var c = function () {};
-      c.inherit(b);
-
-      assert.deepEqual([b, a, Object], c.ancestors);
+      assert.deepEqual([child, parent, Object], grandchild.ancestors);
     });
   });
 });
