@@ -216,11 +216,12 @@
      * Makes this function inherit from the given function. This does the
      * following two things:
      *
-     *   1. Extends this function with the given function
+     *   1. Copies all enumerable properties of the given function to this
+     *      function
      *   2. Makes this function's prototype an instance of the given function's
      *      prototype
      *
-     * See also Object.merge.
+     * This function also triggers an "inherited" event on the given function.
      */
     inherit: function (parent) {
       if (!Function.isFunction(parent)) {
@@ -235,12 +236,10 @@
     },
 
     /**
-     * Creates a new function that inherits from this function. The new function
-     * calls an "initialize" method on instances of itself when invoked, if
-     * present on the prototype. The new function also gets all properties of
-     * the given prototype/constructor object(s).
-     *
-     * See also Object.merge.
+     * Creates a new function that inherits from this function (See Function#inherit).
+     * The new function gets all properties of the given prototype/constructor
+     * object(s) and calls an "initialize" prototype function on new instances
+     * when they are first created, if present.
      */
     extend: function (prototypeProps, constructorProps) {
       var parent = this;
