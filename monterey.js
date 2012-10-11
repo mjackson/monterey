@@ -1,5 +1,5 @@
 /*!
- * monterey.js - A minimal OO & functional toolkit for ES5 JavaScript
+ * monterey.js - https://github.com/mjijackson/monterey.js
  * Copyright 2012 Michael Jackson
  */
 
@@ -9,6 +9,10 @@
   var guid = 1;
 
   function addProperty(object, name, value) {
+    if (typeof value === 'function') {
+      addProperty(value, '__monterey_name__', name);
+    }
+
     Object.defineProperty(object, name, {
       value: value,
       enumerable: false,
@@ -23,15 +27,15 @@
     }
   }
 
+  function addGetter(object, name, fn) {
+    Object.defineProperty(object, name, {
+      enumerable: false,
+      configurable: true,
+      get: fn
+    });
+  }
+
   addProperties(Object, {
-
-    guid: function (object) {
-      if (!object.hasOwnProperty('__guid__')) {
-        addProperty(object, '__guid__', guid++);
-      }
-
-      return object.__guid__;
-    },
 
     /**
      * Copies all *enumerable* *own* properties of any additional arguments to
@@ -61,53 +65,14 @@
     },
 
     /**
-     * Returns true if the given object is an instance of the given constructor
-     * function, or if it mixes in the given function.
-     *
-     * See also Object.mixesIn.
+     * Returns a globally-unique id for the given object.
      */
-    is: function (object, fn) {
-      return (object instanceof fn) || Object.mixesIn(object, fn);
-    },
-
-    /**
-     * Returns an array of functions that have been mixed in to this object.
-     */
-    mixins: function (object) {
-      if (!object.hasOwnProperty('__mixins__')) {
-        addProperty(object, '__mixins__', []);
+    guid: function (object) {
+      if (!object.hasOwnProperty('__monterey_guid__')) {
+        addProperty(object, '__monterey_guid__', String(Date.now() + '_' + guid++));
       }
 
-      return object.__mixins__;
-    },
-
-    /**
-     * Mixes in the given function into the given object. This does the
-     * following two things:
-     *
-     *   1. Calls the function in the context of the object with any additional
-     *      arguments that are passed
-     *   2. Extends the object with the function's prototype
-     *
-     * See also Object.merge.
-     */
-    mixin: function (object, fn) {
-      if (!Function.isFunction(fn)) {
-        throw 'Mixin must be a function';
-      }
-
-      Object.mixins(object).push(fn);
-      Object.merge(object, fn.prototype);
-      fn.apply(object, slice.call(arguments, 2));
-
-      Object.trigger(fn, 'mixedIn', object);
-    },
-
-    /**
-     * Returns true if the given object mixes in the given function.
-     */
-    mixesIn: function (object, fn) {
-      return Object.mixins(object).indexOf(fn) !== -1;
+      return object.__monterey_guid__;
     },
 
     /**
@@ -115,18 +80,18 @@
      * given object, keyed by event type.
      */
     events: function (object) {
-      if (!object.hasOwnProperty('__events__')) {
-        addProperty(object, '__events__', {});
+      if (!object.hasOwnProperty('__monterey_events__')) {
+        addProperty(object, '__monterey_events__', {});
       }
 
-      return object.__events__;
+      return object.__monterey_events__;
     },
 
     /**
      * Registers an event handler on the given object for the given event type.
      */
     on: function (object, type, handler) {
-      if (!Function.isFunction(handler)) {
+      if (typeof handler !== 'function') {
         throw 'Event handler must be a function';
       }
 
@@ -162,7 +127,7 @@
       }
 
       for (var i = 0; i < handlers.length; ++i) {
-        if (handlers[i].__guid__ === id) {
+        if (handlers[i].__monterey_guid__ === id) {
           Object.trigger(object, 'eventRemoved', type, handlers.splice(i--, 1));
         }
       }
@@ -199,17 +164,6 @@
 
   });
 
-  addProperties(Function, {
-
-    /**
-     * Returns true if the given object is a function.
-     */
-    isFunction: function (object) {
-      return typeof object === 'function';
-    }
-
-  });
-
   addProperties(Function.prototype, {
 
     /**
@@ -224,13 +178,24 @@
      * This function also triggers an "inherited" event on the given function.
      */
     inherit: function (parent) {
-      if (!Function.isFunction(parent)) {
+      if (typeof parent !== 'function') {
         throw 'Parent must be a function';
       }
 
       addProperties(this, parent);
       this.prototype = Object.create(parent.prototype);
       addProperty(this.prototype, 'constructor', this);
+
+      addGetter(this.prototype, 'super', function superHack() {
+        var caller = superHack.caller;
+
+        // In order for this hack to work properly the caller needs to be
+        // either a named function or one that was added to the prototype
+        // using addProperty (e.g. when using Function#extend).
+        var superMethod = parent.prototype[caller.name || caller.__monterey_name__];
+
+        return superMethod;
+      });
 
       Object.trigger(parent, 'inherited', this);
     },
@@ -244,7 +209,7 @@
     extend: function (prototypeProps, constructorProps) {
       var parent = this;
       var child = function () {
-        if (Function.isFunction(this.initialize)) {
+        if (typeof this.initialize === 'function') {
           this.initialize.apply(this, arguments);
         }
       };
@@ -288,36 +253,26 @@
 
   });
 
-  Object.defineProperties(Function.prototype, {
+  /**
+   * Returns the next function up the prototype chain from this one.
+   */
+  addGetter(Function.prototype, 'parent', function () {
+    var proto = Object.getPrototypeOf(this.prototype);
+    return proto && proto.constructor;
+  });
 
-    /**
-     * Returns the next function up the prototype chain from this one.
-     */
-    parent: {
-      configurable: true,
-      get: function () {
-        var proto = Object.getPrototypeOf(this.prototype);
-        return proto && proto.constructor;
-      }
-    },
+  /**
+   * Returns an array of functions in the prototype chain from this
+   * function back to Object.
+   */
+  addGetter(Function.prototype, 'ancestors', function () {
+    var ancestors = [], fn = this;
 
-    /**
-     * Returns an array of functions in the prototype chain from this
-     * function back to Object.
-     */
-    ancestors: {
-      configurable: true,
-      get: function () {
-        var ancestors = [], fn = this;
-
-        while (fn = fn.parent) {
-          ancestors.push(fn);
-        }
-
-        return ancestors;
-      }
+    while (fn = fn.parent) {
+      ancestors.push(fn);
     }
 
+    return ancestors;
   });
 
 }());

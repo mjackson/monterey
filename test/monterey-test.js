@@ -2,19 +2,6 @@ var assert = require('assert');
 require('../monterey');
 
 describe('Object', function () {
-  describe('.guid', function () {
-    checkDescriptor(Object, 'guid', false, true, true);
-
-    it('generates a unique id for each object', function () {
-      var a = Object.guid({});
-      var b = Object.guid({});
-
-      assert.ok(a);
-      assert.ok(b);
-      assert.ok(a !== b);
-    });
-  });
-
   describe('.merge', function () {
     checkDescriptor(Object, 'merge', false, true, true);
 
@@ -45,139 +32,16 @@ describe('Object', function () {
     });
   });
 
-  describe('.is', function () {
-    checkDescriptor(Object, 'is', false, true, true);
+  describe('.guid', function () {
+    checkDescriptor(Object, 'guid', false, true, true);
 
-    it('returns true for direct instances of a function', function () {
-      var a = function () {};
-      var b = new a;
-      assert(Object.is(b, a));
-    });
+    it('generates a unique id for each object', function () {
+      var a = Object.guid({});
+      var b = Object.guid({});
 
-    it('returns true for indirect instances of a function', function () {
-      var a = function () {};
-      var b = function () {};
-      b.inherit(a);
-      var c = new b;
-      assert(Object.is(c, b));
-      assert(Object.is(c, a));
-    });
-
-    it('returns false for instances of a different function', function () {
-      var a = function () {};
-      var b = function () {};
-      var c = new b;
-      assert(Object.is(c, b));
-      assert(!Object.is(c, a));
-    });
-
-    it('returns true for objects that mixin a constructor', function () {
-      var a = function () {};
-      var b = function () {};
-      var c = new b;
-      Object.mixin(c, a);
-      assert(Object.is(c, b));
-      assert(Object.is(c, a));
-    });
-  });
-
-  describe('.mixins', function () {
-    checkDescriptor(Object, 'mixins', false, true, true);
-
-    it('returns an new empty array for a new object', function () {
-      var a = {};
-      assert.deepEqual([], Object.mixins(a));
-    });
-
-    it('returns the same array on subsequent calls', function () {
-      var a = {};
-      var mixins = Object.mixins(a);
-      assert(mixins);
-      assert.strictEqual(mixins, Object.mixins(a));
-    });
-
-    it('returns different arrays for two different objects', function () {
-      var a = {};
-      var b = {};
-      assert.deepEqual([], Object.mixins(a));
-      assert.deepEqual([], Object.mixins(b));
-      assert(Object.mixins(a) !== Object.mixins(b));
-    });
-  });
-
-  describe('.mixin', function () {
-    checkDescriptor(Object, 'mixin', false, true, true);
-
-    it('calls the given function with any additional arguments', function () {
-      var args;
-      var a = {};
-      var b = function () {
-        args = Array.prototype.slice.call(arguments, 0);
-      };
-      Object.mixin(a, b, 1, 2, 3);
-      assert.deepEqual([1, 2, 3], args);
-    });
-
-    it('sets the receiver as the scope of the function call', function () {
-      var scope;
-      var a = {};
-      var b = function () {
-        scope = this;
-      };
-      Object.mixin(a, b);
-      assert.strictEqual(scope, a);
-    });
-
-    it("extends the receiver with all enumerable properties of the function's prototype", function () {
-      var a = {};
-      var b = function () {};
-      b.prototype.c = 'c';
-      b.prototype.d = function () {};
-      Object.defineProperty(b.prototype, 'e', { value: 'e' });
-
-      assert(b.prototype.propertyIsEnumerable('c'));
-      assert(b.prototype.propertyIsEnumerable('d'));
-      assert(!b.prototype.propertyIsEnumerable('e'));
-
-      assert.deepEqual([], Object.mixins(a));
-
-      Object.mixin(a, b);
-
-      assert.deepEqual([b], Object.mixins(a));
-      assert(a.hasOwnProperty('c'));
-      assert.strictEqual(b.prototype.c, a.c);
-      assert(a.hasOwnProperty('d'));
-      assert.strictEqual(b.prototype.d, a.d);
-      assert(!a.hasOwnProperty('e'));
-    });
-
-    it('triggers a mixedIn event on the given function', function () {
-      var a = function () {};
-      var b = {};
-
-      var called = false, object;
-      Object.on(a, 'mixedIn', function (e, obj) {
-        called = true;
-        object = obj;
-      });
-
-      assert(!called);
-      Object.mixin(b, a);
-      assert(called);
-      assert.strictEqual(object, b);
-    });
-  });
-
-  describe('.mixesIn', function () {
-    checkDescriptor(Object, 'mixesIn', false, true, true);
-
-    it('returns true for an object that mixes in a given function', function () {
-      var a = function () {};
-      var b = {};
-
-      assert(!Object.mixesIn(b, a));
-      Object.mixin(b, a);
-      assert(Object.mixesIn(b, a));
+      assert.ok(a);
+      assert.ok(b);
+      assert.ok(a !== b);
     });
   });
 
@@ -361,26 +225,6 @@ describe('Object', function () {
 });
 
 describe('Function', function () {
-  describe('.isFunction', function () {
-    checkDescriptor(Function, 'isFunction', false, true, true);
-
-    it('returns true for a function literal', function () {
-      assert(Function.isFunction(Object));
-    });
-
-    it('returns true for a new Function', function () {
-      assert(Function.isFunction(new Function('a', 'return a')));
-    });
-
-    it('returns false for objects that are not functions', function () {
-      assert(!Function.isFunction({}));
-      assert(!Function.isFunction([]));
-      assert(!Function.isFunction(1));
-      assert(!Function.isFunction(true));
-      assert(!Function.isFunction(null));
-    });
-  });
-
   describe('#inherit', function () {
     checkDescriptor(Function.prototype, 'inherit', false, true, true);
 
@@ -410,6 +254,21 @@ describe('Function', function () {
       assert.equal(b, b.prototype.constructor);
     });
 
+    it("creates a super getter on the receiver's prototype that returns functions of the superclass' prototype with the same name from inside instance methods", function () {
+      var a = function () {};
+      a.prototype.sayHello = function () {};
+      var b = function () {};
+      b.prototype.sayHello = function sayHello() {
+        assert.strictEqual(this.super, a.prototype.sayHello);
+        assert(!this.propertyIsEnumerable('super'));
+      };
+      b.inherit(a);
+
+      var instance = new b;
+
+      instance.sayHello();
+    });
+
     it('triggers an inherited event on the given function', function () {
       var a = function () {};
       var b = function () {};
@@ -432,7 +291,7 @@ describe('Function', function () {
       var a = function () {};
       var b = a.extend();
 
-      assert(Function.isFunction(b));
+      assert(typeof b === 'function');
       assert(b.isDescendantOf(a));
     });
 
@@ -446,7 +305,7 @@ describe('Function', function () {
         }
       });
 
-      var instance = new b();
+      var instance = new b;
 
       assert(called);
     });
@@ -565,6 +424,22 @@ describe('Function', function () {
     it('returns an array of functions a function descends from in hierarchical order', function () {
       assert.deepEqual([child, parent, Object], grandchild.ancestors);
     });
+  });
+});
+
+describe('An instance of a class created using Object#extend', function () {
+  it('can call methods of the Object prototype using the super property', function () {
+    var more = 'more';
+    var a = Object.extend({
+      toString: function () {
+        return this.super.call(this) + more;
+      }
+    });
+
+    var instance = new a;
+    var expect = Object.prototype.toString.call(instance) + more;
+
+    assert.equal(instance.toString(), expect);
   });
 });
 
