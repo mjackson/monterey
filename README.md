@@ -36,7 +36,7 @@ var Person = Object.extend({
 
 var Employee = Person.extend({
   initialize: function (name, title) {
-    Person.prototype.initialize.call(this, name);
+    this.super.call(this, name);
     this.title = title;
   }
 });
@@ -112,70 +112,6 @@ By default events have `type`, `time`, and `source` properties as in the example
 
 Note: If an event handler returns `false` all remaining handlers for that event are not called.
 
-### Mixins
-
-Classical inheritance is the right solution for situations where the problem domain can be neatly broken up into a single-inheritance hierarchy. However, many real world scenarios do not fit this model well. Monterey attempts to address this issue with "mixins".
-
-A mixin is simply a function that is applied to some other object without being inserted into that object's prototype chain. To achieve this the receiver is first extended with all properties of the function prototype, and then the function is called with the receiver as its `this` so that the object may be initialized as any other object that uses that constructor would be.
-
-The following methods make this possible:
-
-  - `Object.mixin(object, fn)`
-  - `Object.mixins(object)`
-  - `Object.mixesIn(object, fn)`
-
-These allow you to mimic multiple inheritance in JavaScript to some extent. Consider the following:
-
-```javascript
-function View() {}
-
-var view = new View;
-
-// A mixin for views we want to be "scrollable".
-function Scrollable() {
-  this.isScrollable = true;
-}
-
-Scrollable.prototype.scroll = function () {
-  // ...
-};
-
-// A mixin for views we want to be "draggable".
-function Draggable() {
-  this.isDraggable = true;
-}
-
-Draggable.prototype.drag = function () {
-  // ...
-};
-
-Object.mixin(view, Scrollable);
-Object.mixin(view, Draggable);
-
-view.isScrollable; // true
-view.isDraggable; // true
-Object.mixins(view); // [Scrollable, Draggable]
-Object.mixesIn(view, Scrollable); // true
-Object.mixesIn(view, Array); // false
-```
-
-The caveat is that since the prototype of a mixin is not inserted into the object's prototype chain that object does not automatically get any updates to the prototype object. Also, `instanceof` doesn't work with mixins as it does with normal inheritance. However, with carefully constructed code this pattern can be very useful.
-
-### Object.is
-
-The `instanceof` operator can be used to check if an object inherits from a function (i.e. if that function's prototype appears in the object's prototype chain). However, this doesn't take into account mixins. `Object.is` addresses this problem.
-
-Continuing from the example above:
-
-```javascript
-view instanceof View; // true
-view instanceof Scrollable; // false
-view instanceof Draggable; // false
-Object.is(view, View); // true
-Object.is(view, Scrollable); // true
-Object.is(view, Draggable); // true
-```
-
 ### Object.merge and Object.copy
 
 It's extremely common to need to copy the own properties of one object to another efficiently. This can be useful when cloning objects, for example, or when mixing in methods of a function's prototype on an object (see the Mixins section above).
@@ -190,6 +126,14 @@ a.message; // "Hello!"
 ```
 
 If you simply want a copy of an existing object, use `Object.copy` which just merges an object with a new, blank object.
+
+```javascript
+var a = { message: 'Hello!' };
+var b = Object.copy(a);
+
+a === b; // false
+b.message; // "Hello!"
+```
 
 ## Compatibility
 
