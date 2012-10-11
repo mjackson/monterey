@@ -92,7 +92,7 @@
      */
     on: function (object, type, handler) {
       if (typeof handler !== 'function') {
-        throw 'Event handler must be a function';
+        throw new Error('Event handler must be a function');
       }
 
       var events = Object.events(object);
@@ -179,7 +179,7 @@
      */
     inherit: function (parent) {
       if (typeof parent !== 'function') {
-        throw 'Parent must be a function';
+        throw new Error('Parent must be a function');
       }
 
       addProperties(this, parent);
