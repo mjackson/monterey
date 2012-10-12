@@ -206,7 +206,7 @@
      * object(s) and calls an "initialize" prototype function on new instances
      * when they are first created, if present.
      */
-    extend: function (prototypeProps, constructorProps) {
+    extend: function (props) {
       var parent = this;
       var child = function () {
         if (typeof this.initialize === 'function') {
@@ -215,8 +215,12 @@
       };
 
       child.inherit(parent);
-      addProperties(child.prototype, prototypeProps || {});
-      addProperties(child, constructorProps || {});
+
+      if (typeof props === 'function') {
+        props = props(child.prototype, parent.prototype);
+      }
+
+      addProperties(child.prototype, props || {});
 
       return child;
     },

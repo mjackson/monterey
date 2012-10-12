@@ -287,7 +287,7 @@ describe('Function', function () {
   describe('#extend', function () {
     checkDescriptor(Function.prototype, 'extend', false, true, true);
 
-    it('returns a new function that is descended from the receiver', function () {
+    it('returns a new function that is a descendant of the receiver', function () {
       var a = function () {};
       var b = a.extend();
 
@@ -295,7 +295,7 @@ describe('Function', function () {
       assert(b.isDescendantOf(a));
     });
 
-    it('returns a function that calls its initialize method when invoked', function () {
+    it('returns a function that calls its initialize method when invoked in the scope of a new instance', function () {
       var called = false;
       var a = function () {};
       var b = a.extend({
@@ -310,6 +310,36 @@ describe('Function', function () {
       assert(called);
     });
 
+    describe('when called with an object argument', function () {
+      it('returns a new function that uses that object as its prototype', function () {
+        var a = function () {};
+        var b = a.extend({
+          sayHi: function () {}
+        });
+
+        assert(b.prototype.sayHi);
+        assert(!b.prototype.propertyIsEnumerable('sayHi'));
+      });
+    });
+
+    describe('when called with a function argument', function () {
+      it('returns a new function that uses the object returned from the argument as its prototype', function () {
+        var proto;
+        var a = function () {};
+        var b = a.extend(function (childProto, superProto) {
+          proto = childProto;
+          assert.strictEqual(superProto, a.prototype);
+          return {
+            sayHi: function () {}
+          };
+        });
+
+        assert.strictEqual(proto, b.prototype);
+        assert(b.prototype.sayHi);
+        assert(!b.prototype.propertyIsEnumerable('sayHi'));
+      });
+    });
+
     it("extends the new function's prototype with all instance properties (not enumerable)", function () {
       var a = function () {};
       var b = a.extend({
@@ -318,16 +348,6 @@ describe('Function', function () {
 
       assert(b.prototype.sayHi);
       assert(!b.prototype.propertyIsEnumerable('sayHi'));
-    });
-
-    it('extends the new function with all constructor properties (not enumerable)', function () {
-      var a = function () {};
-      var b = a.extend({}, {
-        sayHi: function () {}
-      });
-
-      assert(b.sayHi);
-      assert(!b.propertyIsEnumerable('sayHi'));
     });
   });
 

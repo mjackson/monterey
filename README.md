@@ -17,7 +17,7 @@ Even though a function automatically comes with a prototype, a function may actu
 Monterey provides the following properties and methods that make it easier to use this pattern of inheritance in JavaScript:
 
   - `Function#inherit(fn)`
-  - `Function#extend([prototypeProps], [constructorProps])`
+  - `Function#extend([props])`
   - `Function#isParentOf(fn)`
   - `Function#isChildOf(fn)`
   - `Function#isAncestorOf(fn)`
@@ -36,7 +36,7 @@ var Person = Object.extend({
 
 var Employee = Person.extend({
   initialize: function (name, title) {
-    this.super.call(this, name);
+    this.super(name);
     this.title = title;
   }
 });
