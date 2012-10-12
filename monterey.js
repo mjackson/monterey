@@ -35,6 +35,16 @@
     });
   }
 
+  function superGetter(proto) {
+    return function superHack() {
+      // In order for this hack to work properly the caller needs to be
+      // either a named function or one that was added to the prototype
+      // using addProperty (e.g. when using Function#extend).
+      var caller = superHack.caller;
+      return proto[caller.__monterey_name__ || caller.name];
+    };
+  }
+
   addProperties(Object, {
 
     /**
@@ -185,17 +195,7 @@
       addProperties(this, parent);
       this.prototype = Object.create(parent.prototype);
       addProperty(this.prototype, 'constructor', this);
-
-      addGetter(this.prototype, 'super', function superHack() {
-        var caller = superHack.caller;
-
-        // In order for this hack to work properly the caller needs to be
-        // either a named function or one that was added to the prototype
-        // using addProperty (e.g. when using Function#extend).
-        var superMethod = parent.prototype[caller.name || caller.__monterey_name__];
-
-        return superMethod;
-      });
+      addGetter(this.prototype, 'super', superGetter(parent.prototype));
 
       Object.trigger(parent, 'inherited', this);
     },
@@ -266,7 +266,8 @@
    * function back to Object.
    */
   addGetter(Function.prototype, 'ancestors', function () {
-    var ancestors = [], fn = this;
+    var ancestors = [];
+    var fn = this;
 
     while (fn = fn.parent) {
       ancestors.push(fn);
