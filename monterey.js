@@ -217,10 +217,10 @@
       child.inherit(parent);
 
       if (typeof props === 'function') {
-        props = props(child.prototype, parent.prototype);
+        props(child.prototype, parent.prototype);
+      } else if (props) {
+        addProperties(child.prototype, props);
       }
-
-      addProperties(child.prototype, props || {});
 
       return child;
     },

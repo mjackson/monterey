@@ -324,19 +324,17 @@ describe('Function', function () {
 
     describe('when called with a function argument', function () {
       it('returns a new function that uses the object returned from the argument as its prototype', function () {
-        var proto;
+        var aProto, bProto;
         var a = function () {};
-        var b = a.extend(function (childProto, superProto) {
-          proto = childProto;
-          assert.strictEqual(superProto, a.prototype);
-          return {
-            sayHi: function () {}
-          };
+        var b = a.extend(function (proto, parentProto) {
+          aProto = parentProto;
+          bProto = proto;
+          proto.sayHi = function () {};
         });
 
-        assert.strictEqual(proto, b.prototype);
+        assert.strictEqual(aProto, a.prototype);
+        assert.strictEqual(bProto, b.prototype);
         assert(b.prototype.sayHi);
-        assert(!b.prototype.propertyIsEnumerable('sayHi'));
       });
     });
 
