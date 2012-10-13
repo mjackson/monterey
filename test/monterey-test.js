@@ -452,7 +452,7 @@ describe('An instance of a class created using Object#extend', function () {
     var more = 'more';
     var a = Object.extend({
       toString: function () {
-        return this.super.call(this) + more;
+        return this.super() + more;
       }
     });
 
