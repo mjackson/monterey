@@ -273,9 +273,9 @@
     var ancestors = [];
     var fn = this;
 
-    while (fn = fn.parent) {
+    do {
       ancestors.push(fn);
-    }
+    } while (fn = fn.parent);
 
     return ancestors;
   });

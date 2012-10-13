@@ -442,7 +442,7 @@ describe('Function', function () {
     checkDescriptor(Function.prototype, 'ancestors', false, undefined, true);
 
     it('returns an array of functions a function descends from in hierarchical order', function () {
-      assert.deepEqual([child, parent, Object], grandchild.ancestors);
+      assert.deepEqual([grandchild, child, parent, Object], grandchild.ancestors);
     });
   });
 });
