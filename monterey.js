@@ -39,7 +39,7 @@
     return function superHack() {
       // In order for this hack to work properly the caller needs to be
       // either a named function or one that was added to the prototype
-      // using addProperty (e.g. when using Function#extend).
+      // using addProperty (e.g. using Function#extend).
       var caller = superHack.caller;
       return proto[caller.__monterey_name__ || caller.name];
     };
@@ -141,6 +141,10 @@
           Object.trigger(object, 'eventRemoved', type, handlers.splice(i--, 1));
         }
       }
+
+      if (handlers.length === 0) {
+        delete events[type];
+      }
     },
 
     /**
@@ -195,30 +199,38 @@
       addProperties(this, parent);
       this.prototype = Object.create(parent.prototype);
       addProperty(this.prototype, 'constructor', this);
-      addGetter(this.prototype, 'super', superGetter(parent.prototype));
 
-      Object.trigger(parent, 'inherited', this);
+      // Experimental.
+      addGetter(this.prototype, 'super', superGetter(parent.prototype));
     },
 
     /**
-     * Creates a new function that inherits from this function (See Function#inherit).
-     * The new function gets all properties of the given prototype/constructor
-     * object(s) and calls an "initialize" prototype function on new instances
-     * when they are first created, if present.
+     * Returns a function that inherits from this function (see Function#inherit).
+     * The given argument may either be 1) an object that specifies properties
+     * to be added to the prototype of the returned function or 2) a function
+     * that is used to generate such an object. In the second case the function
+     * is called with one argument: the prototype of this function.
+     *
+     * The returned function with either be the value of the "constructor"
+     * property of the given properties object or a new empty function.
      */
     extend: function (props) {
       var parent = this;
-      var child = function () {
-        if (typeof this.initialize === 'function') {
-          this.initialize.apply(this, arguments);
-        }
-      };
+
+      if (typeof props === 'function') {
+        props = props(parent.prototype);
+      }
+
+      var child;
+      if (props && props.hasOwnProperty('constructor')) {
+        child = props.constructor;
+      } else {
+        child = function () {};
+      }
 
       child.inherit(parent);
 
-      if (typeof props === 'function') {
-        props(child.prototype, parent.prototype);
-      } else if (props) {
+      if (props) {
         addProperties(child.prototype, props);
       }
 

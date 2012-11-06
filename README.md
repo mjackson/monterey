@@ -29,13 +29,13 @@ Monterey provides the following properties and methods that make it easier to us
 
 ```javascript
 var Person = Object.extend({
-  initialize: function (name) {
+  constructor: function (name) {
     this.name = name;
   }
 });
 
 var Employee = Person.extend({
-  initialize: function (name, title) {
+  constructor: function (name, title) {
     this.super(name);
     this.title = title;
   }
@@ -47,7 +47,7 @@ Person.isAncestorOf(Employee); // true
 Employee.ancestors; // [Person, Object]
 ```
 
-Note: It is important to remember to call the parent function's initialize method inside the child's initialize method, otherwise you'll probably be missing some important initialization logic the parent provides.
+Note: It is important to remember to call the parent function's constructor method inside the child's constructor method, otherwise you'll probably be missing some important initialization logic the parent provides.
 
 Under the hood `Function#extend` is just using Monterey's `Function#inherit` to setup the prototype chain. Thus, the above example could also be written more simply as:
 

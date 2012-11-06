@@ -28,7 +28,7 @@ describe('Object', function () {
       var a = {};
       var b = Object.copy(a);
 
-      assert.ok(a !== b);
+      assert(a !== b);
     });
   });
 
@@ -39,9 +39,9 @@ describe('Object', function () {
       var a = Object.guid({});
       var b = Object.guid({});
 
-      assert.ok(a);
-      assert.ok(b);
-      assert.ok(a !== b);
+      assert(a);
+      assert(b);
+      assert(a !== b);
     });
   });
 
@@ -82,7 +82,7 @@ describe('Object', function () {
 
     it('registers an event handler for all events of a given type', function () {
       var a = {};
-      assert.ok(typeof Object.events(a)['b'] === 'undefined');
+      assert(typeof Object.events(a)['b'] === 'undefined');
 
       Object.on(a, 'b', function () {});
 
@@ -97,7 +97,7 @@ describe('Object', function () {
     it('removes a single handler when one is given', function () {
       var a = {};
 
-      assert.ok(typeof Object.events(a)['b'] === 'undefined');
+      assert(typeof Object.events(a)['b'] === 'undefined');
 
       var b = function () {};
       Object.on(a, 'b', b);
@@ -117,7 +117,7 @@ describe('Object', function () {
     it('removes multiple instances of the same handler', function () {
       var a = {};
 
-      assert.ok(typeof Object.events(a)['b'] === 'undefined');
+      assert(typeof Object.events(a)['b'] === 'undefined');
 
       var b = function () {};
       Object.on(a, 'b', b);
@@ -166,7 +166,7 @@ describe('Object', function () {
         scope = this;
       });
 
-      assert.ok(typeof scope === 'undefined');
+      assert(typeof scope === 'undefined');
       Object.trigger(a, 'b');
       assert.strictEqual(a, scope);
     });
@@ -179,7 +179,7 @@ describe('Object', function () {
       };
 
       Object.on(a, 'c', b);
-      assert.ok(typeof ev === 'undefined');
+      assert(typeof ev === 'undefined');
       Object.trigger(a, 'c');
 
       assert(ev);
@@ -268,20 +268,6 @@ describe('Function', function () {
 
       instance.sayHello();
     });
-
-    it('triggers an inherited event on the given function', function () {
-      var a = function () {};
-      var b = function () {};
-
-      var called = false;
-      Object.on(a, 'inherited', function () {
-        called = true;
-      });
-
-      assert(!called);
-      b.inherit(a);
-      assert(called);
-    });
   });
 
   describe('#extend', function () {
@@ -295,19 +281,25 @@ describe('Function', function () {
       assert(b.isDescendantOf(a));
     });
 
-    it('returns a function that calls its initialize method when invoked in the scope of a new instance', function () {
-      var called = false;
-      var a = function () {};
+    it('returns a function that calls its constructor method when invoked in the scope of a new instance', function () {
+      var aCalled = false;
+      var bCalled = false;
+      var a = function () {
+        aCalled = true;
+      };
       var b = a.extend({
-        initialize: function () {
-          called = true;
-          assert.ok(this instanceof b);
+        constructor: function () {
+          bCalled = true;
+          assert(this instanceof a);
+          assert(this instanceof b);
+          this.super();
         }
       });
 
       var instance = new b;
 
-      assert(called);
+      assert(aCalled);
+      assert(bCalled);
     });
 
     describe('when called with an object argument', function () {
@@ -323,18 +315,17 @@ describe('Function', function () {
     });
 
     describe('when called with a function argument', function () {
-      it('returns a new function that uses the object returned from the argument as its prototype', function () {
-        var aProto, bProto;
+      it('returns a new function that merges the enumerable properties of the object returned from the argument as its prototype', function () {
+        var aProto;
         var a = function () {};
-        var b = a.extend(function (proto, parentProto) {
+        var b = a.extend(function (parentProto) {
           aProto = parentProto;
-          bProto = proto;
-          proto.sayHi = function () {};
+          return { sayHi: function () {} };
         });
 
         assert.strictEqual(aProto, a.prototype);
-        assert.strictEqual(bProto, b.prototype);
         assert(b.prototype.sayHi);
+        assert(!b.prototype.propertyIsEnumerable('sayHi'));
       });
     });
 
@@ -463,7 +454,7 @@ describe('An instance of a class created using Object#extend', function () {
 
 function checkDescriptor(object, name, enumerable, writable, configurable) {
   var descriptor = Object.getOwnPropertyDescriptor(object, name);
-  assert.ok(descriptor);
+  assert(descriptor);
 
   it('is' + (enumerable ? '' : ' not') + ' enumerable', function () {
     assert.equal(descriptor.enumerable, enumerable);
