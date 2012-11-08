@@ -302,6 +302,19 @@ describe('Function', function () {
       assert(bCalled);
     });
 
+    it('returns a function that calls its parent constructor method when no child constructor is provided', function () {
+      var aCalled = false;
+      var bCalled = false;
+      var a = function () {
+        aCalled = true;
+      };
+      var b = a.extend();
+
+      var instance = new b;
+
+      assert(aCalled);
+    });
+
     describe('when called with an object argument', function () {
       it('returns a new function that uses that object as its prototype', function () {
         var a = function () {};

@@ -225,7 +225,9 @@
       if (props && props.hasOwnProperty('constructor')) {
         child = props.constructor;
       } else {
-        child = function () {};
+        child = function () {
+          parent.apply(this, arguments);
+        };
       }
 
       child.inherit(parent);
