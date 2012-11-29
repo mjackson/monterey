@@ -233,6 +233,32 @@ describe('Object', function () {
       assert(!cCalled);
     });
   });
+
+  describe('.addEvents', function () {
+    checkDescriptor(Object, 'trigger', false, true, true);
+
+    it('adds event handling capabilities to an object', function () {
+      var a = {};
+      Object.addEvents(a);
+
+      assert.equal(typeof a.on, 'function');
+      assert.equal(typeof a.off, 'function');
+      assert.equal(typeof a.trigger, 'function');
+
+      var context;
+      a.on('anEvent', function (event) {
+        assert.equal(event.source, this);
+        context = this;
+      });
+
+      assert(!context);
+
+      a.trigger('anEvent');
+
+      assert(context);
+      assert.equal(context, a);
+    });
+  });
 });
 
 describe('Function', function () {

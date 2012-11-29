@@ -46,6 +46,16 @@
     };
   }
 
+  function callObjectMethodWithThis(method) {
+    return function () {
+      Object[method].apply(Object, [this].concat(slice.call(arguments, 0)));
+    };
+  }
+
+  var on = callObjectMethodWithThis('on');
+  var off = callObjectMethodWithThis('off');
+  var trigger = callObjectMethodWithThis('trigger');
+
   addProperties(Object, {
 
     /**
@@ -185,6 +195,15 @@
       } else {
         handlers.apply(object, args);
       }
+    },
+
+    /**
+     * Give the given object the "on", "off", and "trigger" methods so that it
+     * can use them natively.
+     */
+    addEvents: function (object) {
+      addProperties(object, { on: on, off: off, trigger: trigger });
+      return object;
     }
 
   });
@@ -192,15 +211,9 @@
   addProperties(Function.prototype, {
 
     /**
-     * Makes this function inherit from the given function. This does the
-     * following two things:
-     *
-     *   1. Copies all enumerable properties of the given function to this
-     *      function
-     *   2. Makes this function's prototype an instance of the given function's
-     *      prototype
-     *
-     * This function also triggers an "inherited" event on the given function.
+     * Makes this function "inherit" from the given function by copying all
+     * enumerable properties of the given function to this function and making
+     * this function's prototype an instance of the given function's prototype.
      */
     inherit: function (parent) {
       if (typeof parent !== 'function') {
@@ -217,13 +230,14 @@
 
     /**
      * Returns a function that inherits from this function (see Function#inherit).
-     * The given argument may either be 1) an object that specifies properties
-     * to be added to the prototype of the returned function or 2) a function
-     * that is used to generate such an object. In the second case the function
-     * is called with one argument: the prototype of this function.
+     * The props argument should be an object that contains properties to add
+     * to the new function's prototype, or a function that is used to generate
+     * such an object. In the second case the function is called with one
+     * argument: the parent's prototype.
      *
-     * The returned function with either be the value of the "constructor"
-     * property of the given properties object or a new empty function.
+     * If props has a "constructor" function it will be used as the return
+     * value. Otherwise, a new anonymous function that automatically calls the
+     * parent is used.
      */
     extend: function (props) {
       var parent = this;
@@ -242,10 +256,7 @@
       }
 
       child.inherit(parent);
-
-      if (props) {
-        addProperties(child.prototype, props);
-      }
+      if (props) addProperties(child.prototype, props);
 
       return child;
     },
