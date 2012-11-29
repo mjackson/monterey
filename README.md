@@ -2,7 +2,10 @@
 
 # Welcome to Monterey!
 
-Monterey is a tiny JavaScript library that neatly encapsulates several very common usage patterns and makes them a core part of the language. Some of these features have to do with object-oriented programming, reflection, and inheritance, while others are geared towards enabling a more fluent event-driven interface.
+Monterey is a tiny JavaScript library that neatly encapsulates two very common usage patterns:
+
+  1. Inheritance
+  2. Events
 
 This document explains each feature and gives some guidance as to how to use it. If you're a newcomer to JavaScript from another object-oriented language like Java, Python, or Ruby, you'll probably find most of these additions quite welcome. If you're an experienced JavaScript programmer you'll still probably enjoy reading the source to see how some of the new features in ES5 are used to expose JavaScript's powerful object model and meta-programming interface.
 
@@ -10,7 +13,7 @@ This document explains each feature and gives some guidance as to how to use it.
 
 ### Inheritance
 
-Although it may be used in a mostly-functional style, JavaScript has a simple and powerful object model at its heart built around prototypal inheritance. What this means in practice is that every function has a `prototype` object attached. When object instances are created using the `new` keyword in front of a function they reference all the properties and methods of that function's prototype. As such, all properties of the prototype object are also properties of that object.
+Although it may be used in a mostly-functional style, JavaScript has a simple and powerful object model at its heart built around prototypal inheritance. What this means in practice is that every function has a `prototype` object. When object instances are created using the `new` keyword in front of a function they reference all the properties and methods of that function's prototype. As such, all properties of the prototype object are also properties of that object.
 
 Even though a function automatically comes with a prototype, a function may actually use any object as its prototype. Thus, we can mimic a classical inheritance strategy by setting the prototype of some function to an instance of some other function, its "superclass".
 
@@ -31,6 +34,9 @@ Monterey provides the following properties and methods that make it easier to us
 var Person = Object.extend({
   constructor: function (name) {
     this.name = name;
+  },
+  sayHello: function () {
+    return 'Hi, my name is ' + this.name + '.';
   }
 });
 
@@ -38,33 +44,25 @@ var Employee = Person.extend({
   constructor: function (name, title) {
     this.super(name);
     this.title = title;
+  },
+  sayHello: function () {
+    return this.super() + " I'm an " + this.title + '!';
   }
 });
 
+var buzz = new Employee('Buzz', 'astronaut');
+buzz.sayHello(); // Hi, my name is Buzz. I'm an astronaut!
+
 Employee.parent; // Person
-Employee.inherits(Person); // true
-Person.isAncestorOf(Employee); // true
+Employee.isChildOf(Person); // true
+Person.isParentOf(Employee); // true
+
 Employee.ancestors; // [Person, Object]
+Employee.isDescendantOf(Object); //true
+Object.isAncestorOf(Employee); // true
 ```
 
-Note: It is important to remember to call the parent function's constructor method inside the child's constructor method, otherwise you'll probably be missing some important initialization logic the parent provides.
-
-Under the hood `Function#extend` is just using Monterey's `Function#inherit` to setup the prototype chain. Thus, the above example could also be written more simply as:
-
-```javascript
-function Person(name) {
-  this.name = name;
-}
-
-function Employee(name, title) {
-  Person.call(this, name);
-  this.title = title;
-}
-
-Employee.inherit(Person);
-```
-
-The tradeoff between using `Function#extend` and `Function#inherits` directly is that the former lets you define properties of the function's prototype more succinctly whereas the latter permits you to use named functions. Also, `Function#extend` copies instance properties from parent functions to children.
+Under the hood `Function#extend` is just using Monterey's `Function#inherit` to setup the prototype chain.
 
 ### Events
 
@@ -72,40 +70,27 @@ Most JavaScript programs rely heavily on an event-driven architecture to know wh
 
 Libraries like [jQuery](http://jquery.com) can be very useful for setting up event listeners on a web page, but event-driven architecture can be a very useful tool as a general method of organizing code.
 
-In Monterey, any JavaScript object is able to register event handlers and notify listeners when events happen. The following methods make this possible:
+In Monterey, *any* JavaScript object is able to register event handlers and notify listeners when events happen. The following methods make this possible:
 
   - `Object.on(object, type, handler)`
   - `Object.off(object, type, [ handler ])`
   - `Object.trigger(object, type, args...)`
+  - `Object.addEvents(object)`
 
 `Object.on` is used to register a handler function for a given type of event on any object. `Object.trigger` triggers an event of a given type and calls all handlers for events of that type with an event object and any additional arguments given in the scope of the receiver. `Object.off` un-registers a specific event handler if given, or all event handlers for the given type if no handler is given.
 
-Functions in Monterey make use of this feature to trigger "inherited" events when another function inherits from them (see the Inheritance section above).
-
 ```javascript
-function Person(name) {
-  this.name = name;
-}
+var a = {};
+Object.addEvents(a);
 
-// Use this array to keep track of child constructors when Person
-// is inherited.
-Person.children = [];
-
-Object.on(Person, "inherited", function (e, subclass) {
-  e.type; // "inherited"
-  e.time; // Date
-  e.source; // Person
-  this.children.push(subclass);
+a.on('anEvent', function (event, arg) {
+  console.log(this); // a
+  console.log(event.source); // a
+  console.log(event.type); // "anEvent"
+  console.log(arg); // "anArg"
 });
 
-function Employee(name, title) {
-  Person.call(this, name);
-  this.title = title;
-}
-
-Employee.inherit(Person);
-
-Person.children; // [Employee]
+a.trigger('anEvent', 'anArg');
 ```
 
 By default events have `type`, `time`, and `source` properties as in the example above.
@@ -137,7 +122,7 @@ b.message; // "Hello!"
 
 ## Compatibility
 
-Monterey should work perfectly in any JavaScript environment that supports ES5, specifically the "static" methods of `Object` including `Object.create`, `Object.defineProperty`, and `Object.defineProperties`. Please see kangax's excellent [ECMAScript 5 compatibility table](http://kangax.github.com/es5-compat-table/) for information on which browsers support ES5.
+Monterey works in any JavaScript environment that supports ES5, specifically the "static" methods of `Object` including `Object.create`, `Object.defineProperty`, and `Object.defineProperties`. Please see kangax's excellent [ECMAScript 5 compatibility table](http://kangax.github.com/es5-compat-table/) for information on which browsers support ES5.
 
 ## Installation
 
