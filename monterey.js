@@ -5,6 +5,7 @@
 
 (function () {
 
+  var isArray = Array.isArray;
   var slice = Array.prototype.slice;
   var guid = 1;
 
@@ -106,15 +107,20 @@
       }
 
       var events = Object.events(object);
-      var handlers = events[type];
 
-      if (!handlers) {
-        events[type] = handlers = [];
+      if (events.newListener) {
+        Object.trigger(object, 'newListener', type, handler);
       }
 
-      handlers.push(handler);
-
-      Object.trigger(object, 'eventAdded', type, handler);
+      if (!events[type]) {
+        // Optimize for a single listener.
+        events[type] = handler;
+      } else if (isArray(events[type])) {
+        events[type].push(handler);
+      } else {
+        // Second listener for this event type, make an array.
+        events[type] = [events[type], handler];
+      }
     },
 
     /**
@@ -132,18 +138,23 @@
       var handlers = events[type];
       var id = Object.guid(handler);
 
-      if (!handlers || !id) {
-        return;
-      }
+      if (!handlers || !id) return;
 
-      for (var i = 0; i < handlers.length; ++i) {
-        if (handlers[i].__monterey_guid__ === id) {
-          Object.trigger(object, 'eventRemoved', type, handlers.splice(i--, 1));
+      if (isArray(handlers)) {
+        var newHandlers = [];
+        for (var i = 0; i < handlers.length; ++i) {
+          if (handlers[i].__monterey_guid__ !== id) newHandlers.push(handlers[i]);
         }
-      }
 
-      if (handlers.length === 0) {
-        delete events[type];
+        if (newHandlers.length) {
+          events[type] = (newHandlers.length === 1) ? newHandlers[0] : newHandlers;
+        } else {
+          delete events[type];
+        }
+      } else {
+        if (handlers.__monterey_guid__ === id) {
+          delete events[type];
+        }
       }
     },
 
@@ -156,9 +167,7 @@
       var events = Object.events(object);
       var handlers = events[type];
 
-      if (!handlers) {
-        return;
-      }
+      if (!handlers) return;
 
       var event = {
         type: type,
@@ -168,11 +177,13 @@
 
       var args = [event].concat(slice.call(arguments, 2));
 
-      for (var i = 0, len = handlers.length; i < len; ++i) {
-        // Returning false from a handler cancels all remaining handlers.
-        if (handlers[i].apply(object, args) === false) {
-          break;
+      if (isArray(handlers)) {
+        for (var i = 0, len = handlers.length; i < len; ++i) {
+          // Returning false from a handler cancels all remaining handlers.
+          if (handlers[i].apply(object, args) === false) break;
         }
+      } else {
+        handlers.apply(object, args);
       }
     }
 

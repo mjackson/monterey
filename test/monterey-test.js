@@ -87,7 +87,22 @@ describe('Object', function () {
       Object.on(a, 'b', function () {});
 
       assert(Object.events(a)['b']);
-      assert(Array.isArray(Object.events(a)['b']));
+    });
+
+    it('triggers a "newListener" event', function () {
+      var a = {};
+      var wasCalled = false;
+      Object.on(a, 'newListener', function () {
+        wasCalled = true;
+      });
+
+      // Make sure the addition of the "newListener" event didn't trigger
+      // the newListener event handler.
+      assert(!wasCalled);
+
+      Object.on(a, 'anEvent', function () {});
+
+      assert(wasCalled);
     });
   });
 
@@ -110,8 +125,6 @@ describe('Object', function () {
       Object.off(a, 'b', b);
 
       assert(Object.events(a)['b']);
-      assert(Array.isArray(Object.events(a)['b']));
-      assert.equal(Object.events(a)['b'].length, 1);
     });
 
     it('removes multiple instances of the same handler', function () {
@@ -126,13 +139,11 @@ describe('Object', function () {
 
       assert(Object.events(a)['b']);
       assert(Array.isArray(Object.events(a)['b']));
-      assert.equal(3, Object.events(a)['b'].length);
+      assert.equal(Object.events(a)['b'].length, 3);
 
       Object.off(a, 'b', b);
 
       assert(Object.events(a)['b']);
-      assert(Array.isArray(Object.events(a)['b']));
-      assert.equal(1, Object.events(a)['b'].length);
     });
   });
 
@@ -184,8 +195,8 @@ describe('Object', function () {
 
       assert(ev);
       assert(ev.time);
-      assert.equal('c', ev.type);
-      assert.strictEqual(a, ev.source);
+      assert.equal(ev.type, 'c');
+      assert.strictEqual(ev.source, a);
     });
 
     it('calls handlers with any additional arguments', function () {
@@ -235,7 +246,7 @@ describe('Function', function () {
       b.inherit(a);
 
       assert('staticProp' in b);
-      assert.equal('a', b.staticProp);
+      assert.equal(b.staticProp, 'a');
     });
 
     it('sets the prototype of the receiver to an instance of the given function', function () {
@@ -251,7 +262,7 @@ describe('Function', function () {
       var b = function () {};
       b.inherit(a);
 
-      assert.equal(b, b.prototype.constructor);
+      assert.equal(b.prototype.constructor, b);
     });
 
     it("creates a super getter on the receiver's prototype that returns functions of the superclass' prototype with the same name from inside instance methods", function () {
