@@ -7,11 +7,15 @@
 
   var isArray = Array.isArray;
   var slice = Array.prototype.slice;
+
   var guid = 1;
+  function newGuid() {
+    return 'monterey-' + (guid++);
+  }
 
   function addProperty(object, name, value) {
     if (typeof value === 'function') {
-      addProperty(value, '__monterey_name__', name);
+      addProperty(value, '__montereyName__', name);
     }
 
     Object.defineProperty(object, name, {
@@ -36,25 +40,7 @@
     });
   }
 
-  function superGetter(proto) {
-    return function superHack() {
-      // In order for this hack to work properly the caller needs to be
-      // either a named function or one that was added to the prototype
-      // using addProperty (e.g. using Function#extend).
-      var caller = superHack.caller;
-      return proto[caller.__monterey_name__ || caller.name];
-    };
-  }
-
-  function callObjectMethodWithThis(method) {
-    return function () {
-      Object[method].apply(Object, [this].concat(slice.call(arguments, 0)));
-    };
-  }
-
-  var on = callObjectMethodWithThis('on');
-  var off = callObjectMethodWithThis('off');
-  var trigger = callObjectMethodWithThis('trigger');
+  var expandoProperty = '__montereyGuid__';
 
   addProperties(Object, {
 
@@ -64,8 +50,8 @@
      */
     merge: function (object) {
       var extensions = slice.call(arguments, 1);
-      var property;
 
+      var property;
       extensions.forEach(function (extension) {
         for (property in extension) {
           if (extension.hasOwnProperty(property)) {
@@ -88,24 +74,38 @@
     /**
      * Returns a globally-unique id for the given object.
      */
-    guid: function (object) {
-      if (!object.hasOwnProperty('__monterey_guid__')) {
-        addProperty(object, '__monterey_guid__', String(Date.now() + '_' + guid++));
+    getGuid: function (object) {
+      var guid = object[expandoProperty];
+
+      if (!guid) {
+        addProperty(object, expandoProperty, guid = newGuid());
       }
 
-      return object.__monterey_guid__;
-    },
+      return guid;
+    }
+
+  });
+
+  /**
+   * A map of object guids to event listeners.
+   */
+  var eventListeners = {};
+
+  addProperties(Object, {
 
     /**
      * Returns an object of event handlers that have been registered on the
      * given object, keyed by event type.
      */
-    events: function (object) {
-      if (!object.hasOwnProperty('__monterey_events__')) {
-        addProperty(object, '__monterey_events__', {});
+    getEvents: function (object) {
+      var guid = Object.getGuid(object);
+      var events = eventListeners[guid];
+
+      if (!events) {
+        events = eventListeners[guid] = {};
       }
 
-      return object.__monterey_events__;
+      return events;
     },
 
     /**
@@ -116,7 +116,7 @@
         throw new Error('Event handler must be a function');
       }
 
-      var events = Object.events(object);
+      var events = Object.getEvents(object);
 
       if (events.newListener) {
         Object.trigger(object, 'newListener', type, handler);
@@ -138,7 +138,7 @@
      * given, all event handlers registered for the given type are removed.
      */
     off: function (object, type, handler) {
-      var events = Object.events(object);
+      var events = Object.getEvents(object);
 
       if (!handler) {
         delete events[type];
@@ -146,14 +146,14 @@
       }
 
       var handlers = events[type];
-      var id = Object.guid(handler);
+      var guid = Object.getGuid(handler);
 
-      if (!handlers || !id) return;
+      if (!handlers || !guid) return;
 
       if (isArray(handlers)) {
         var newHandlers = [];
         for (var i = 0; i < handlers.length; ++i) {
-          if (handlers[i].__monterey_guid__ !== id) newHandlers.push(handlers[i]);
+          if (handlers[i][expandoProperty] !== guid) newHandlers.push(handlers[i]);
         }
 
         if (newHandlers.length) {
@@ -162,7 +162,7 @@
           delete events[type];
         }
       } else {
-        if (handlers.__monterey_guid__ === id) {
+        if (handlers[expandoProperty] === guid) {
           delete events[type];
         }
       }
@@ -174,7 +174,7 @@
      * Returning false from an event handler cancels all remaining handlers.
      */
     trigger: function (object, type) {
-      var events = Object.events(object);
+      var events = Object.getEvents(object);
       var handlers = events[type];
 
       if (!handlers) return;
@@ -185,7 +185,7 @@
         source: object
       };
 
-      var args = [event].concat(slice.call(arguments, 2));
+      var args = [ event ].concat(slice.call(arguments, 2));
 
       if (isArray(handlers)) {
         for (var i = 0, len = handlers.length; i < len; ++i) {
@@ -197,16 +197,33 @@
       }
     },
 
-    /**
-     * Give the given object the "on", "off", and "trigger" methods so that it
-     * can use them natively.
-     */
-    addEvents: function (object) {
-      addProperties(object, { on: on, off: off, trigger: trigger });
-      return object;
-    }
+  });
+
+  function callObjectMethodWithThis(method) {
+    return function () {
+      Object[method].apply(Object, [ this ].concat(slice.call(arguments, 0)));
+    };
+  }
+
+  addProperties(Object.prototype, {
+
+    on: callObjectMethodWithThis('on'),
+
+    off: callObjectMethodWithThis('off'),
+
+    trigger: callObjectMethodWithThis('trigger')
 
   });
+
+  function superGetter(proto) {
+    return function superHack() {
+      // In order for this hack to work properly the caller needs to be
+      // either a named function or one that was added to the prototype
+      // using addProperty (e.g. using Function#extend).
+      var caller = superHack.caller;
+      return proto[caller.__montereyName__ || caller.name];
+    };
+  }
 
   addProperties(Function.prototype, {
 

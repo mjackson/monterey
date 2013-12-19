@@ -2,7 +2,8 @@ var assert = require('assert');
 require('../monterey');
 
 describe('Object', function () {
-  describe('.merge', function () {
+
+  describe('merge', function () {
     checkDescriptor(Object, 'merge', false, true, true);
 
     it('copies all enumerable own properties to the receiver', function () {
@@ -21,7 +22,7 @@ describe('Object', function () {
     });
   });
 
-  describe('.copy', function () {
+  describe('copy', function () {
     checkDescriptor(Object, 'copy', false, true, true);
 
     it('creates a new object', function () {
@@ -32,12 +33,12 @@ describe('Object', function () {
     });
   });
 
-  describe('.guid', function () {
-    checkDescriptor(Object, 'guid', false, true, true);
+  describe('getGuid', function () {
+    checkDescriptor(Object, 'getGuid', false, true, true);
 
     it('generates a unique id for each object', function () {
-      var a = Object.guid({});
-      var b = Object.guid({});
+      var a = Object.getGuid({});
+      var b = Object.getGuid({});
 
       assert(a);
       assert(b);
@@ -45,31 +46,31 @@ describe('Object', function () {
     });
   });
 
-  describe('.events', function () {
-    checkDescriptor(Object, 'events', false, true, true);
+  describe('getEvents', function () {
+    checkDescriptor(Object, 'getEvents', false, true, true);
 
     it('returns an new empty array for a new object', function () {
       var a = {};
-      assert.deepEqual([], Object.events(a));
+      assert.deepEqual([], Object.getEvents(a));
     });
 
     it('returns the same array on subsequent calls', function () {
       var a = {};
-      var events = Object.events(a);
+      var events = Object.getEvents(a);
       assert(events);
-      assert.strictEqual(events, Object.events(a));
+      assert.strictEqual(events, Object.getEvents(a));
     });
 
     it('returns different arrays for two different objects', function () {
       var a = {};
       var b = {};
-      assert.deepEqual([], Object.events(a));
-      assert.deepEqual([], Object.events(b));
-      assert(Object.events(a) !== Object.events(b));
+      assert.deepEqual([], Object.getEvents(a));
+      assert.deepEqual([], Object.getEvents(b));
+      assert(Object.getEvents(a) !== Object.getEvents(b));
     });
   });
 
-  describe('.on', function () {
+  describe('on', function () {
     checkDescriptor(Object, 'on', false, true, true);
 
     it('throws an error when an invalid event handler is given', function () {
@@ -82,11 +83,11 @@ describe('Object', function () {
 
     it('registers an event handler for all events of a given type', function () {
       var a = {};
-      assert(typeof Object.events(a)['b'] === 'undefined');
+      assert(typeof Object.getEvents(a)['b'] === 'undefined');
 
       Object.on(a, 'b', function () {});
 
-      assert(Object.events(a)['b']);
+      assert(Object.getEvents(a)['b']);
     });
 
     it('triggers a "newListener" event', function () {
@@ -106,48 +107,48 @@ describe('Object', function () {
     });
   });
 
-  describe('.off', function () {
+  describe('off', function () {
     checkDescriptor(Object, 'off', false, true, true);
 
     it('removes a single handler when one is given', function () {
       var a = {};
 
-      assert(typeof Object.events(a)['b'] === 'undefined');
+      assert(typeof Object.getEvents(a)['b'] === 'undefined');
 
       var b = function () {};
       Object.on(a, 'b', b);
       Object.on(a, 'b', function () {});
 
-      assert(Object.events(a)['b']);
-      assert(Array.isArray(Object.events(a)['b']));
-      assert.equal(Object.events(a)['b'].length, 2);
+      assert(Object.getEvents(a)['b']);
+      assert(Array.isArray(Object.getEvents(a)['b']));
+      assert.equal(Object.getEvents(a)['b'].length, 2);
 
       Object.off(a, 'b', b);
 
-      assert(Object.events(a)['b']);
+      assert(Object.getEvents(a)['b']);
     });
 
     it('removes multiple instances of the same handler', function () {
       var a = {};
 
-      assert(typeof Object.events(a)['b'] === 'undefined');
+      assert(typeof Object.getEvents(a)['b'] === 'undefined');
 
       var b = function () {};
       Object.on(a, 'b', b);
       Object.on(a, 'b', b);
       Object.on(a, 'b', function () {});
 
-      assert(Object.events(a)['b']);
-      assert(Array.isArray(Object.events(a)['b']));
-      assert.equal(Object.events(a)['b'].length, 3);
+      assert(Object.getEvents(a)['b']);
+      assert(Array.isArray(Object.getEvents(a)['b']));
+      assert.equal(Object.getEvents(a)['b'].length, 3);
 
       Object.off(a, 'b', b);
 
-      assert(Object.events(a)['b']);
+      assert(Object.getEvents(a)['b']);
     });
   });
 
-  describe('.trigger', function () {
+  describe('trigger', function () {
     checkDescriptor(Object, 'trigger', false, true, true);
 
     it('calls all handlers for a given event type', function () {
@@ -234,12 +235,17 @@ describe('Object', function () {
     });
   });
 
-  describe('.addEvents', function () {
-    checkDescriptor(Object, 'trigger', false, true, true);
+});
+
+describe('Object.prototype', function () {
+
+  describe('on/off/trigger', function () {
+    checkDescriptor(Object.prototype, 'on', false, true, true);
+    checkDescriptor(Object.prototype, 'off', false, true, true);
+    checkDescriptor(Object.prototype, 'trigger', false, true, true);
 
     it('adds event handling capabilities to an object', function () {
       var a = {};
-      Object.addEvents(a);
 
       assert.equal(typeof a.on, 'function');
       assert.equal(typeof a.off, 'function');
@@ -259,10 +265,12 @@ describe('Object', function () {
       assert.equal(context, a);
     });
   });
+
 });
 
-describe('Function', function () {
-  describe('#inherit', function () {
+describe('Function.prototype', function () {
+
+  describe('inherit', function () {
     checkDescriptor(Function.prototype, 'inherit', false, true, true);
 
     it('extends the receiver with all enumerable own properties of the given function', function () {
@@ -307,7 +315,7 @@ describe('Function', function () {
     });
   });
 
-  describe('#extend', function () {
+  describe('extend', function () {
     checkDescriptor(Function.prototype, 'extend', false, true, true);
 
     it('returns a new function that is a descendant of the receiver', function () {
@@ -397,7 +405,7 @@ describe('Function', function () {
   grandchild.inherit(child);
   var other = function () {};
 
-  describe('#isParentOf', function () {
+  describe('isParentOf', function () {
     checkDescriptor(Function.prototype, 'isParentOf', false, true, true);
 
     it('returns true for a function that is a parent of another', function () {
@@ -413,7 +421,7 @@ describe('Function', function () {
     });
   });
 
-  describe('#isChildOf', function () {
+  describe('isChildOf', function () {
     checkDescriptor(Function.prototype, 'isChildOf', false, true, true);
 
     it('returns true for a function that is a child of another', function () {
@@ -429,7 +437,7 @@ describe('Function', function () {
     });
   });
 
-  describe('#isAncestorOf', function () {
+  describe('isAncestorOf', function () {
     checkDescriptor(Function.prototype, 'isAncestorOf', false, true, true);
 
     it('returns true for a function that is the parent of another', function () {
@@ -445,7 +453,7 @@ describe('Function', function () {
     });
   });
 
-  describe('#isDescendantOf', function () {
+  describe('isDescendantOf', function () {
     checkDescriptor(Function.prototype, 'isDescendantOf', false, true, true);
 
     it('returns true for a function that is a child of another', function () {
@@ -461,7 +469,7 @@ describe('Function', function () {
     });
   });
 
-  describe('#parent', function () {
+  describe('parent', function () {
     checkDescriptor(Function.prototype, 'parent', false, undefined, true);
 
     it('returns the function from which a function is directly descended', function () {
@@ -477,13 +485,14 @@ describe('Function', function () {
     });
   });
 
-  describe('#ancestors', function () {
+  describe('ancestors', function () {
     checkDescriptor(Function.prototype, 'ancestors', false, undefined, true);
 
     it('returns an array of functions a function descends from in hierarchical order', function () {
       assert.deepEqual([grandchild, child, parent, Object], grandchild.ancestors);
     });
   });
+
 });
 
 describe('An instance of a class created using Object#extend', function () {
