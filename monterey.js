@@ -1,24 +1,23 @@
 /*!
- * monterey.js - https://github.com/mjijackson/monterey.js
- * Copyright 2012 Michael Jackson
+ * monterey.js - Add OO to ES5 JavaScript
+ * Copyright Michael Jackson
  */
 
 (function () {
 
-  var isArray = Array.isArray;
-  var slice = Array.prototype.slice;
-
-  var guid = 1;
-  function newGuid() {
-    return 'monterey-' + (guid++);
+  function isFunction(object) {
+    return typeof object === 'function';
   }
 
-  function addProperty(object, name, value) {
-    if (typeof value === 'function') {
-      addProperty(value, '__montereyName__', name);
-    }
+  function hasOwnProperty(object, property) {
+    return Object.prototype.hasOwnProperty.call(object, property);
+  }
 
-    Object.defineProperty(object, name, {
+  function addProperty(object, property, value) {
+    if (isFunction(value))
+      addProperty(value, '__montereyName__', property);
+
+    Object.defineProperty(object, property, {
       value: value,
       enumerable: false,
       writable: true,
@@ -27,199 +26,26 @@
   }
 
   function addProperties(object, properties) {
-    for (var name in properties) {
-      addProperty(object, name, properties[name]);
+    for (var property in properties) {
+      if (hasOwnProperty(properties, property))
+        addProperty(object, property, properties[property]);
     }
   }
 
-  function addGetter(object, name, fn) {
-    Object.defineProperty(object, name, {
+  function addGetter(object, property, fn) {
+    Object.defineProperty(object, property, {
       enumerable: false,
       configurable: true,
       get: fn
     });
   }
 
-  var expandoProperty = '__montereyGuid__';
-
-  addProperties(Object, {
-
-    /**
-     * Copies all *enumerable* *own* properties of any additional arguments to
-     * the given object.
-     */
-    merge: function (object) {
-      var extensions = slice.call(arguments, 1);
-
-      var property;
-      extensions.forEach(function (extension) {
-        for (property in extension) {
-          if (extension.hasOwnProperty(property)) {
-            object[property] = extension[property];
-          }
-        }
-      });
-
-      return object;
-    },
-
-    /**
-     * Creates a new object that has all *enumerable* *own* properties of the
-     * given object.
-     */
-    copy: function (object) {
-      return Object.merge({}, object);
-    },
-
-    /**
-     * Returns a globally-unique id for the given object.
-     */
-    getGuid: function (object) {
-      var guid = object[expandoProperty];
-
-      if (!guid) {
-        addProperty(object, expandoProperty, guid = newGuid());
-      }
-
-      return guid;
-    }
-
-  });
-
-  /**
-   * A map of object guids to event listeners.
-   */
-  var eventListeners = {};
-
-  addProperties(Object, {
-
-    /**
-     * Returns an object of event handlers that have been registered on the
-     * given object, keyed by event type.
-     */
-    getEvents: function (object) {
-      var guid = Object.getGuid(object);
-      var events = eventListeners[guid];
-
-      if (!events) {
-        events = eventListeners[guid] = {};
-      }
-
-      return events;
-    },
-
-    /**
-     * Registers an event handler on the given object for the given event type.
-     */
-    on: function (object, type, handler) {
-      if (typeof handler !== 'function') {
-        throw new Error('Event handler must be a function');
-      }
-
-      var events = Object.getEvents(object);
-
-      if (events.newListener) {
-        Object.trigger(object, 'newListener', type, handler);
-      }
-
-      if (!events[type]) {
-        // Optimize for a single listener.
-        events[type] = handler;
-      } else if (isArray(events[type])) {
-        events[type].push(handler);
-      } else {
-        // Second listener for this event type, make an array.
-        events[type] = [events[type], handler];
-      }
-    },
-
-    /**
-     * Unregisters an event handler on the given object. If the handler is not
-     * given, all event handlers registered for the given type are removed.
-     */
-    off: function (object, type, handler) {
-      var events = Object.getEvents(object);
-
-      if (!handler) {
-        delete events[type];
-        return;
-      }
-
-      var handlers = events[type];
-      var guid = Object.getGuid(handler);
-
-      if (!handlers || !guid) return;
-
-      if (isArray(handlers)) {
-        var newHandlers = [];
-        for (var i = 0; i < handlers.length; ++i) {
-          if (handlers[i][expandoProperty] !== guid) newHandlers.push(handlers[i]);
-        }
-
-        if (newHandlers.length) {
-          events[type] = (newHandlers.length === 1) ? newHandlers[0] : newHandlers;
-        } else {
-          delete events[type];
-        }
-      } else {
-        if (handlers[expandoProperty] === guid) {
-          delete events[type];
-        }
-      }
-    },
-
-    /**
-     * Triggers all event handlers of the given type on the given object in
-     * the order they were added, passing through any additional arguments.
-     * Returning false from an event handler cancels all remaining handlers.
-     */
-    trigger: function (object, type) {
-      var events = Object.getEvents(object);
-      var handlers = events[type];
-
-      if (!handlers) return;
-
-      var event = {
-        type: type,
-        time: new Date,
-        source: object
-      };
-
-      var args = [ event ].concat(slice.call(arguments, 2));
-
-      if (isArray(handlers)) {
-        for (var i = 0, len = handlers.length; i < len; ++i) {
-          // Returning false from a handler cancels all remaining handlers.
-          if (handlers[i].apply(object, args) === false) break;
-        }
-      } else {
-        handlers.apply(object, args);
-      }
-    },
-
-  });
-
-  function callObjectMethodWithThis(method) {
-    return function () {
-      Object[method].apply(Object, [ this ].concat(slice.call(arguments, 0)));
-    };
-  }
-
-  addProperties(Object.prototype, {
-
-    on: callObjectMethodWithThis('on'),
-
-    off: callObjectMethodWithThis('off'),
-
-    trigger: callObjectMethodWithThis('trigger')
-
-  });
-
   function superGetter(proto) {
     return function superHack() {
       // In order for this hack to work properly the caller needs to be
       // either a named function or one that was added to the prototype
       // using addProperty (e.g. using Function#extend).
+      // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/caller
       var caller = superHack.caller;
       return proto[caller.__montereyName__ || caller.name];
     };
@@ -233,9 +59,8 @@
      * this function's prototype an instance of the given function's prototype.
      */
     inherit: function (parent) {
-      if (typeof parent !== 'function') {
+      if (!isFunction(parent))
         throw new Error('Parent must be a function');
-      }
 
       addProperties(this, parent);
       this.prototype = Object.create(parent.prototype);
@@ -247,25 +72,24 @@
 
     /**
      * Returns a function that inherits from this function (see Function#inherit).
-     * The props argument should be an object that contains properties to add
-     * to the new function's prototype, or a function that is used to generate
-     * such an object. In the second case the function is called with one
-     * argument: the parent's prototype.
+     * The `properties` argument should be an object that contains properties to add
+     * to the new function's prototype, or a function that is used to generate such
+     * an object. In the second case the function is called with one argument: the
+     * parent's prototype.
      *
-     * If props has a "constructor" function it will be used as the return
+     * If `properties` has a "constructor" function it will be used as the return
      * value. Otherwise, a new anonymous function that automatically calls the
      * parent is used.
      */
-    extend: function (props) {
+    extend: function (properties) {
       var parent = this;
 
-      if (typeof props === 'function') {
-        props = props(parent.prototype);
-      }
+      if (isFunction(properties))
+        properties = properties(parent.prototype);
 
       var child;
-      if (props && props.hasOwnProperty('constructor')) {
-        child = props.constructor;
+      if (properties && hasOwnProperty(properties, 'constructor')) {
+        child = properties.constructor;
       } else {
         child = function () {
           parent.apply(this, arguments);
@@ -273,7 +97,9 @@
       }
 
       child.inherit(parent);
-      if (props) addProperties(child.prototype, props);
+
+      if (properties)
+        addProperties(child.prototype, properties);
 
       return child;
     },
