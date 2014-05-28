@@ -1,5 +1,3 @@
-[![build status](https://secure.travis-ci.org/mjijackson/monterey.js.png)](http://travis-ci.org/mjijackson/monterey.js)
-
 # Welcome to Monterey!
 
 Monterey is a tiny JavaScript library that adds simple but powerful classical inheritance capabilities to ES5 JavaScript.
