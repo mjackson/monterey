@@ -1,0 +1,3 @@
+.jshintignore
+.travis.yml
+modules/**/__tests__
