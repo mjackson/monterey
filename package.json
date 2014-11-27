@@ -1,20 +1,23 @@
 {
-  "author": "Michael Jackson <mjijackson@gmail.com>",
   "name": "monterey",
-  "description": "A minimal OO and functional toolkit for ES5 JavaScript",
   "version": "1.0.0",
-  "repository": {
-    "url": "http://github.com/mjijackson/monterey.js.git"
-  },
-  "main": "./monterey",
-  "scripts": {
-    "test": "mocha test"
-  },
-  "dependencies": {},
+  "description": "Minimal OOP for ES5 JavaScript",
+  "main": "./modules/monterey",
   "devDependencies": {
-    "mocha": "1.5.0"
+    "mocha": "~1.20.1"
+  },
+  "repository": {
+    "url": "http://github.com/mjackson/monterey.js.git"
+  },
+  "scripts": {
+    "test": "mocha \"modules/**/__tests__/**/*-test.js\""
   },
   "engines": {
     "node": "*"
+  },
+  "author": "Michael Jackson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mjackson/monterey.js/issues"
   }
 }
