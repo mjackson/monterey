@@ -1,6 +1,6 @@
 {
   "name": "monterey",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Minimal OOP for ES5 JavaScript",
   "main": "modules/monterey",
   "devDependencies": {
