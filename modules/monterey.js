@@ -1,3 +1,4 @@
+/* jshint -W084 */
 /*!
  * monterey - Minimal OOP for ES5 JavaScript
  * Copyright Michael Jackson
