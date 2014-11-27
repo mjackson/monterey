@@ -1,5 +1,5 @@
 /*!
- * monterey.js - Add OO to ES5 JavaScript
+ * monterey - Minimal OOP for ES5 JavaScript
  * Copyright Michael Jackson
  */
 

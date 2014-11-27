@@ -1,3 +1,5 @@
+[![build status](https://secure.travis-ci.org/mjackson/monterey.png)](http://travis-ci.org/mjackson/monterey)
+
 # Welcome to Monterey!
 
 Monterey is a tiny JavaScript library that adds simple but powerful classical inheritance capabilities to ES5 JavaScript.
@@ -23,7 +25,7 @@ Monterey provides the following properties and methods that make it easier to us
 
 `Function#extend` is used to create an inheritance hierarchy that automatically sets up the prototype chain from one constructor function to another.
 
-```javascript
+```js
 var Person = Object.extend({
   constructor: function (name) {
     this.name = name;
@@ -50,7 +52,7 @@ Employee.parent; // Person
 Employee.isChildOf(Person); // true
 Person.isParentOf(Employee); // true
 
-Employee.ancestors; // [Person, Object]
+Employee.ancestors; // [ Person, Object ]
 Employee.isDescendantOf(Object); //true
 Object.isAncestorOf(Employee); // true
 ```
@@ -61,20 +63,23 @@ Under the hood `Function#extend` uses `Function#inherit` to setup the prototype 
 
 Monterey works in any JavaScript environment that supports ES5, specifically the "static" methods of `Object` including `Object.create`, `Object.defineProperty`, and `Object.defineProperties`. Please see kangax's excellent [ECMAScript 5 compatibility table](http://kangax.github.com/es5-compat-table/) for information on which browsers support ES5.
 
-## Installation
+### Installation
 
-Using [npm](http://npmjs.org):
+Using [npm](https://www.npmjs.org/):
 
     $ npm install monterey
 
-Otherwise, [download](https://github.com/mjijackson/monterey.js/downloads) the package from GitHub and include monterey.js as you would any other JavaScript file.
+### Issues
 
-## Tests
+Please file issues on the [issue tracker on GitHub](https://github.com/mjackson/monterey/issues).
 
-Run the tests with [mocha](http://visionmedia.github.com/mocha/):
+### Tests
 
-    $ mocha test
+To run the tests:
 
-## License
+    $ npm install
+    $ npm test
 
-MIT
+### License
+
+[MIT](http://opensource.org/licenses/MIT)
