@@ -1,4 +1,6 @@
 var assert = require('assert');
+var expect = require('expect');
+
 require('../monterey');
 
 describe('Function.prototype', function () {
@@ -13,7 +15,7 @@ describe('Function.prototype', function () {
       b.inherit(a);
 
       assert('staticProp' in b);
-      assert.equal(b.staticProp, 'a');
+      expect(b.staticProp).toEqual('a');
     });
 
     it('sets the prototype of the receiver to an instance of the given function', function () {
@@ -29,7 +31,7 @@ describe('Function.prototype', function () {
       var b = function () {};
       b.inherit(a);
 
-      assert.equal(b.prototype.constructor, b);
+      expect(b.prototype.constructor).toEqual(b);
     });
 
     it("creates a super getter on the receiver's prototype that returns functions of the superclass' prototype with the same name from inside instance methods", function () {
@@ -37,7 +39,7 @@ describe('Function.prototype', function () {
       a.prototype.sayHello = function () {};
       var b = function () {};
       b.prototype.sayHello = function sayHello() {
-        assert.strictEqual(this.super, a.prototype.sayHello);
+        expect(this.super).toBe(a.prototype.sayHello);
         assert(!this.propertyIsEnumerable('super'));
       };
       b.inherit(a);
@@ -55,7 +57,7 @@ describe('Function.prototype', function () {
       var a = function () {};
       var b = a.extend();
 
-      assert(typeof b === 'function');
+      expect(typeof b).toEqual('function');
       assert(b.isDescendantOf(a));
     });
 
@@ -114,7 +116,7 @@ describe('Function.prototype', function () {
           return { sayHi: function () {} };
         });
 
-        assert.strictEqual(aProto, a.prototype);
+        expect(aProto).toBe(a.prototype);
         assert(b.prototype.sayHi);
         assert(!b.prototype.propertyIsEnumerable('sayHi'));
       });
@@ -206,15 +208,15 @@ describe('Function.prototype', function () {
     checkDescriptor(Function.prototype, 'parent', false, undefined, true);
 
     it('returns the function from which a function is directly descended', function () {
-      assert.strictEqual(parent, child.parent);
+      expect(child.parent).toBe(parent);
     });
 
     it('returns Object for top-level functions', function () {
-      assert.strictEqual(Object, parent.parent);
+      expect(parent.parent).toBe(Object);
     });
 
     it('returns null for Object', function () {
-      assert.strictEqual(null, Object.parent);
+      expect(Object.parent).toBe(null);
     });
   });
 
@@ -222,7 +224,7 @@ describe('Function.prototype', function () {
     checkDescriptor(Function.prototype, 'ancestors', false, undefined, true);
 
     it('returns an array of functions a function descends from in hierarchical order', function () {
-      assert.deepEqual([grandchild, child, parent, Object], grandchild.ancestors);
+      expect(grandchild.ancestors).toEqual([ grandchild, child, parent, Object ]);
     });
   });
 
@@ -238,9 +240,9 @@ describe('An instance of a class created using Object#extend', function () {
     });
 
     var instance = new a;
-    var expect = Object.prototype.toString.call(instance) + more;
+    var expected = Object.prototype.toString.call(instance) + more;
 
-    assert.equal(instance.toString(), expect);
+    expect(instance.toString()).toEqual(expected);
   });
 });
 
@@ -249,14 +251,14 @@ function checkDescriptor(object, name, enumerable, writable, configurable) {
   assert(descriptor);
 
   it('is' + (enumerable ? '' : ' not') + ' enumerable', function () {
-    assert.equal(descriptor.enumerable, enumerable);
+    expect(descriptor.enumerable).toEqual(enumerable);
   });
 
   it('is' + (writable ? '' : ' not') + ' writable', function () {
-    assert.equal(descriptor.writable, writable);
+    expect(descriptor.writable).toEqual(writable);
   });
 
   it('is' + (configurable ? '' : ' not') + ' configurable', function () {
-    assert.equal(descriptor.configurable, configurable);
+    expect(descriptor.configurable).toEqual(configurable);
   });
 }

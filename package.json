@@ -4,6 +4,7 @@
   "description": "Minimal OOP for ES5 JavaScript",
   "main": "./modules/monterey",
   "devDependencies": {
+    "expect": "^1.0.2",
     "mocha": "~1.20.1"
   },
   "repository": {
