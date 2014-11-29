@@ -1,7 +1,7 @@
 /* jshint -W084 */
 /*!
- * monterey - Minimal OOP for ES5 JavaScript
- * Copyright Michael Jackson
+ * monterey - Minimal OOP for JavaScript
+ * https://github.com/mjackson/monterey
  */
 
 (function () {
