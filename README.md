@@ -2,11 +2,7 @@
 [![build status](https://img.shields.io/travis/mjackson/monterey.svg?style=flat-square)](https://travis-ci.org/mjackson/monterey)
 [![dependency status](https://img.shields.io/david/mjackson/monterey.svg?style=flat-square)](https://david-dm.org/mjackson/monterey)
 
-## Welcome to Monterey!
-
-Monterey is a tiny JavaScript library that adds simple but powerful classical inheritance capabilities to ES5 JavaScript.
-
-This document explains each feature and gives some guidance as to how to use it. If you're a newcomer to JavaScript from another object-oriented language like Java, Python, or Ruby, you'll probably find most of these additions quite welcome. If you're an experienced JavaScript programmer you'll still probably enjoy reading the source to see how some of the new features in ES5 are used to expose JavaScript's powerful object model and meta-programming interface.
+[Monterey](https://github.com/mjackson/monterey) is a tiny JavaScript library that adds simple but powerful classical inheritance capabilities to ES5 JavaScript.
 
 ### Features
 
