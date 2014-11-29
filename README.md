@@ -1,4 +1,6 @@
-[![build status](https://secure.travis-ci.org/mjackson/monterey.png)](http://travis-ci.org/mjackson/monterey)
+[![npm package](https://img.shields.io/npm/v/monterey.svg?style=flat-square)](https://www.npmjs.org/package/monterey)
+[![build status](https://img.shields.io/travis/mjackson/monterey.svg?style=flat-square)](https://travis-ci.org/mjackson/monterey)
+[![dependency status](https://img.shields.io/david/mjackson/monterey.svg?style=flat-square)](https://david-dm.org/mjackson/monterey)
 
 ## Welcome to Monterey!
 
