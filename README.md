@@ -67,6 +67,12 @@ Using [npm](https://www.npmjs.org/):
 
     $ npm install monterey
 
+Then, in your node program use `require('monterey')` to set it up.
+
+In browsers, just include `dist/monterey.min.js` using a `<script>` tag.
+
+    <script src="monterey.min.js"></script>
+
 ### Issues
 
 Please file issues on the [issue tracker on GitHub](https://github.com/mjackson/monterey/issues).
