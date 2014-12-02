@@ -10,42 +10,42 @@ describe('Function.prototype', function () {
     checkDescriptor(Function.prototype, 'inherit', false, true, true);
 
     it('extends the receiver with all enumerable own properties of the given function', function () {
-      var a = function () {};
-      a.staticProp = 'a';
-      var b = function () {};
-      b.inherit(a);
+      var A = function () {};
+      A.staticProp = 'A';
+      var B = function () {};
+      B.inherit(A);
 
-      assert('staticProp' in b);
-      expect(b.staticProp).toEqual('a');
+      assert('staticProp' in B);
+      expect(B.staticProp).toEqual('A');
     });
 
     it('sets the prototype of the receiver to an instance of the given function', function () {
-      var a = function () {};
-      var b = function () {};
-      b.inherit(a);
+      var A = function () {};
+      var B = function () {};
+      B.inherit(A);
 
-      assert(b.prototype instanceof a);
+      assert(B.prototype instanceof A);
     });
 
     it("preserves the constructor property of the receiver's prototype", function () {
-      var a = function () {};
-      var b = function () {};
-      b.inherit(a);
+      var A = function () {};
+      var B = function () {};
+      B.inherit(A);
 
-      expect(b.prototype.constructor).toEqual(b);
+      expect(B.prototype.constructor).toEqual(B);
     });
 
     it("creates a super getter on the receiver's prototype that returns functions of the superclass' prototype with the same name from inside instance methods", function () {
-      var a = function () {};
-      a.prototype.sayHello = function () {};
-      var b = function () {};
-      b.prototype.sayHello = function sayHello() {
-        expect(this.super).toBe(a.prototype.sayHello);
+      var A = function () {};
+      A.prototype.sayHello = function () {};
+      var B = function () {};
+      B.prototype.sayHello = function sayHello() {
+        expect(this.super).toBe(A.prototype.sayHello);
         assert(!this.propertyIsEnumerable('super'));
       };
-      b.inherit(a);
+      B.inherit(A);
 
-      var instance = new b;
+      var instance = new B;
 
       instance.sayHello();
     });
@@ -55,29 +55,29 @@ describe('Function.prototype', function () {
     checkDescriptor(Function.prototype, 'extend', false, true, true);
 
     it('returns a new function that is a descendant of the receiver', function () {
-      var a = function () {};
-      var b = a.extend();
+      var A = function () {};
+      var B = A.extend();
 
-      expect(typeof b).toEqual('function');
-      assert(b.isDescendantOf(a));
+      expect(typeof B).toEqual('function');
+      assert(B.isDescendantOf(A));
     });
 
     it('returns a function that calls its constructor method when invoked in the scope of a new instance', function () {
       var aCalled = false;
       var bCalled = false;
-      var a = function () {
+      var A = function () {
         aCalled = true;
       };
-      var b = a.extend({
+      var B = A.extend({
         constructor: function () {
           bCalled = true;
-          assert(this instanceof a);
-          assert(this instanceof b);
+          assert(this instanceof A);
+          assert(this instanceof B);
           this.super();
         }
       });
 
-      var instance = new b;
+      var instance = new B;
 
       assert(aCalled);
       assert(bCalled);
@@ -86,51 +86,51 @@ describe('Function.prototype', function () {
     it('returns a function that calls its parent constructor method when no child constructor is provided', function () {
       var aCalled = false;
       var bCalled = false;
-      var a = function () {
+      var A = function () {
         aCalled = true;
       };
-      var b = a.extend();
+      var B = A.extend();
 
-      var instance = new b;
+      var instance = new B;
 
       assert(aCalled);
     });
 
     describe('when called with an object argument', function () {
       it('returns a new function that uses that object as its prototype', function () {
-        var a = function () {};
-        var b = a.extend({
+        var A = function () {};
+        var B = A.extend({
           sayHi: function () {}
         });
 
-        assert(b.prototype.sayHi);
-        assert(!b.prototype.propertyIsEnumerable('sayHi'));
+        assert(B.prototype.sayHi);
+        assert(!B.prototype.propertyIsEnumerable('sayHi'));
       });
     });
 
     describe('when called with a function argument', function () {
       it('returns a new function that merges the enumerable properties of the object returned from the argument as its prototype', function () {
         var aProto;
-        var a = function () {};
-        var b = a.extend(function (parentProto) {
+        var A = function () {};
+        var B = A.extend(function (parentProto) {
           aProto = parentProto;
           return { sayHi: function () {} };
         });
 
-        expect(aProto).toBe(a.prototype);
-        assert(b.prototype.sayHi);
-        assert(!b.prototype.propertyIsEnumerable('sayHi'));
+        expect(aProto).toBe(A.prototype);
+        assert(B.prototype.sayHi);
+        assert(!B.prototype.propertyIsEnumerable('sayHi'));
       });
     });
 
     it("extends the new function's prototype with all instance properties (not enumerable)", function () {
-      var a = function () {};
-      var b = a.extend({
+      var A = function () {};
+      var B = A.extend({
         sayHi: function () {}
       });
 
-      assert(b.prototype.sayHi);
-      assert(!b.prototype.propertyIsEnumerable('sayHi'));
+      assert(B.prototype.sayHi);
+      assert(!B.prototype.propertyIsEnumerable('sayHi'));
     });
   });
 
@@ -234,13 +234,13 @@ describe('Function.prototype', function () {
 describe('An instance of a class created using Object#extend', function () {
   it('can call methods of the Object prototype using super', function () {
     var more = 'more';
-    var a = Object.extend({
+    var A = Object.extend({
       toString: function () {
         return this.super() + more;
       }
     });
 
-    var instance = new a;
+    var instance = new A;
     var expected = Object.prototype.toString.call(instance) + more;
 
     expect(instance.toString()).toEqual(expected);
