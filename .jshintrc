@@ -1,0 +1,6 @@
+{
+  "sub": true,
+  "eqnull": true,
+  "laxbreak": true,
+  "unused": "vars"
+}

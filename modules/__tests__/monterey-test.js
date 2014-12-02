@@ -78,6 +78,7 @@ describe('Function.prototype', function () {
       });
 
       var instance = new B;
+      assert(instance);
 
       assert(aCalled);
       assert(bCalled);
@@ -85,13 +86,13 @@ describe('Function.prototype', function () {
 
     it('returns a function that calls its parent constructor method when no child constructor is provided', function () {
       var aCalled = false;
-      var bCalled = false;
       var A = function () {
         aCalled = true;
       };
       var B = A.extend();
 
       var instance = new B;
+      assert(instance);
 
       assert(aCalled);
     });
