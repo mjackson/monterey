@@ -1,6 +1,7 @@
 [![npm package](https://img.shields.io/npm/v/monterey.svg?style=flat-square)](https://www.npmjs.org/package/monterey)
 [![build status](https://img.shields.io/travis/mjackson/monterey.svg?style=flat-square)](https://travis-ci.org/mjackson/monterey)
 [![dependency status](https://img.shields.io/david/mjackson/monterey.svg?style=flat-square)](https://david-dm.org/mjackson/monterey)
+[![code climate](https://img.shields.io/codeclimate/github/mjackson/monterey.svg?style=flat-square)](https://codeclimate.com/github/mjackson/monterey)
 
 [Monterey](https://github.com/mjackson/monterey) is a tiny JavaScript library that adds simple but powerful classical inheritance capabilities to ES5 JavaScript.
 
