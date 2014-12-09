@@ -5,6 +5,7 @@
   "main": "modules/monterey",
   "devDependencies": {
     "expect": "~1.0.2",
+    "jshint": "^2.5.10",
     "mocha": "~1.20.1",
     "uglify-js": "~2.4.15"
   },
@@ -13,7 +14,7 @@
     "url": "git://github.com/mjackson/monterey.git"
   },
   "scripts": {
-    "test": "mocha \"modules/**/__tests__/**/*-test.js\"",
+    "test": "jshint . && mocha \"modules/**/__tests__/**/*-test.js\"",
     "dist": "uglifyjs modules/monterey.js --wrap monterey --mangle --output dist/monterey.min.js"
   },
   "engines": {
