@@ -23,7 +23,7 @@
   },
   "scripts": {
     "dist": "uglifyjs modules/monterey.js --wrap monterey --mangle --output dist/monterey.min.js",
-    "test": "jshint . && mocha modules/**/__tests__/*-test.js",
+    "test": "jshint . && mocha --reporter spec 'modules/**/__tests__/*-test.js'",
     "test-browser": "karma start"
   },
   "engines": {
