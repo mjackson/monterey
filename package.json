@@ -2,7 +2,7 @@
   "name": "monterey",
   "version": "1.0.1",
   "description": "Minimal OOP for JavaScript",
-  "main": "modules/monterey",
+  "main": "index.js",
   "devDependencies": {
     "expect": "~1.0.2",
     "jshint": "^2.5.10",
@@ -22,8 +22,8 @@
     "url": "git://github.com/mjackson/monterey.git"
   },
   "scripts": {
-    "dist": "uglifyjs modules/monterey.js --wrap monterey --mangle --output dist/monterey.min.js",
-    "test": "jshint . && mocha --reporter spec 'modules/**/__tests__/*-test.js'",
+    "dist": "uglifyjs index.js --wrap monterey --mangle --output dist/monterey.min.js",
+    "test": "jshint . && mocha --reporter spec 'tests/*-test.js'",
     "test-browser": "karma start"
   },
   "engines": {

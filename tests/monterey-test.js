@@ -2,7 +2,7 @@
 var assert = require('assert');
 var expect = require('expect');
 
-require('../monterey');
+require('../index');
 
 describe('Function.prototype', function () {
 
