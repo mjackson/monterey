@@ -2,10 +2,17 @@
   "name": "monterey",
   "version": "1.1.0",
   "description": "Minimal OOP for JavaScript",
+  "author": "Michael Jackson",
   "main": "index.js",
+  "scripts": {
+    "dist": "uglifyjs index.js --wrap monterey --mangle --output dist/monterey.min.js",
+    "test": "eslint index.js && mocha --reporter spec 'tests/*-test.js'",
+    "test-browser": "karma start"
+  },
   "devDependencies": {
+    "babel-eslint": "^4.1.6",
+    "eslint": "^1.10.3",
     "expect": "~1.0.2",
-    "jshint": "^2.5.10",
     "karma": "^0.12.28",
     "karma-chrome-launcher": "^0.1.7",
     "karma-cli": "0.0.4",
@@ -21,15 +28,6 @@
     "type": "git",
     "url": "git://github.com/mjackson/monterey.git"
   },
-  "scripts": {
-    "dist": "uglifyjs index.js --wrap monterey --mangle --output dist/monterey.min.js",
-    "test": "jshint . && mocha --reporter spec 'tests/*-test.js'",
-    "test-browser": "karma start"
-  },
-  "engines": {
-    "node": "*"
-  },
-  "author": "Michael Jackson",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/mjackson/monterey/issues"

@@ -1,33 +1,32 @@
-/* jshint -W084 */
 /*!
  * monterey - Minimal OOP for JavaScript
  * https://github.com/mjackson/monterey
  */
 
 function isFunction(object) {
-  return typeof object === 'function';
+  return typeof object === 'function'
 }
 
 function hasOwnProperty(object, property) {
-  return Object.prototype.hasOwnProperty.call(object, property);
+  return Object.prototype.hasOwnProperty.call(object, property)
 }
 
 function addProperty(object, property, value) {
   if (isFunction(value))
-    addProperty(value, '__montereyName__', property);
+    addProperty(value, '__montereyName__', property)
 
   Object.defineProperty(object, property, {
     value: value,
     enumerable: false,
     writable: true,
     configurable: true
-  });
+  })
 }
 
 function addProperties(object, properties) {
   for (var property in properties)
     if (hasOwnProperty(properties, property))
-      addProperty(object, property, properties[property]);
+      addProperty(object, property, properties[property])
 }
 
 function addGetter(object, property, fn) {
@@ -35,7 +34,7 @@ function addGetter(object, property, fn) {
     enumerable: false,
     configurable: true,
     get: fn
-  });
+  })
 }
 
 function superGetter(proto) {
@@ -44,9 +43,9 @@ function superGetter(proto) {
     // either a named function or one that was added to the prototype
     // using addProperty (e.g. using Function#extend).
     // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/caller
-    var caller = superHack.caller;
-    return proto[caller.__montereyName__ || caller.name];
-  };
+    var caller = superHack.caller
+    return proto[caller.__montereyName__ || caller.name]
+  }
 }
 
 addProperties(Function.prototype, {
@@ -58,14 +57,14 @@ addProperties(Function.prototype, {
    */
   inherit: function (parent) {
     if (!isFunction(parent))
-      throw new Error('Parent must be a function');
+      throw new Error('Parent must be a function')
 
-    addProperties(this, parent);
-    this.prototype = Object.create(parent.prototype);
-    addProperty(this.prototype, 'constructor', this);
+    addProperties(this, parent)
+    this.prototype = Object.create(parent.prototype)
+    addProperty(this.prototype, 'constructor', this)
 
     // Experimental.
-    addGetter(this.prototype, 'super', superGetter(parent.prototype));
+    addGetter(this.prototype, 'super', superGetter(parent.prototype))
   },
 
   /**
@@ -80,26 +79,26 @@ addProperties(Function.prototype, {
    * parent is used.
    */
   extend: function (properties) {
-    var parent = this;
+    var parent = this
 
     if (isFunction(properties))
-      properties = properties(parent.prototype);
+      properties = properties(parent.prototype)
 
-    var child;
+    var child
     if (properties && hasOwnProperty(properties, 'constructor')) {
-      child = properties.constructor;
+      child = properties.constructor
     } else {
       child = function () {
-        parent.apply(this, arguments);
-      };
+        parent.apply(this, arguments)
+      }
     }
 
-    child.inherit(parent);
+    child.inherit(parent)
 
     if (properties)
-      addProperties(child.prototype, properties);
+      addProperties(child.prototype, properties)
 
-    return child;
+    return child
   },
 
   /**
@@ -107,7 +106,7 @@ addProperties(Function.prototype, {
    * given function.
    */
   isParentOf: function (fn) {
-    return this.prototype === Object.getPrototypeOf(fn.prototype);
+    return this.prototype === Object.getPrototypeOf(fn.prototype)
   },
 
   /**
@@ -115,44 +114,44 @@ addProperties(Function.prototype, {
    * given function.
    */
   isChildOf: function (fn) {
-    return fn.isParentOf(this);
+    return fn.isParentOf(this)
   },
 
   /**
    * Returns true if the given function is a descendant of this function.
    */
   isAncestorOf: function (fn) {
-    return this.prototype.isPrototypeOf(fn.prototype);
+    return this.prototype.isPrototypeOf(fn.prototype)
   },
 
   /**
    * Returns true if this function is a descendant of the given function.
    */
   isDescendantOf: function (fn) {
-    return fn.isAncestorOf(this);
+    return fn.isAncestorOf(this)
   }
 
-});
+})
 
 /**
  * Returns the next function up the prototype chain from this one.
  */
 addGetter(Function.prototype, 'parent', function () {
-  var proto = Object.getPrototypeOf(this.prototype);
-  return proto && proto.constructor;
-});
+  var proto = Object.getPrototypeOf(this.prototype)
+  return proto && proto.constructor
+})
 
 /**
  * Returns an array of functions in the prototype chain from this
  * function back to Object.
  */
 addGetter(Function.prototype, 'ancestors', function () {
-  var ancestors = [];
-  var fn = this;
+  var ancestors = []
+  var fn = this
 
   do {
-    ancestors.push(fn);
-  } while (fn = fn.parent);
+    ancestors.push(fn)
+  } while ((fn = fn.parent) != null)
 
-  return ancestors;
-});
+  return ancestors
+})
